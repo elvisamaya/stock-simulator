@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Chrimata — Stock Simulator</title>
 <style>
-:root {
+  :root {
     --bg: #0b1020;
     --bg2: #0f1630;
     --panel: rgba(15, 22, 48, 0.82);
@@ -28,10 +28,7 @@
   html, body { margin: 0; padding: 0; }
   body {
     font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    background:
-      radial-gradient(circle at top left, rgba(120,166,255,.16), transparent 28%),
-      radial-gradient(circle at 100% 0%, rgba(196,157,255,.14), transparent 24%),
-      linear-gradient(180deg, var(--bg) 0%, #070b16 100%);
+        background: #0b1020;
     color: var(--text);
     min-height: 100vh;
     letter-spacing: 0.01em;
@@ -42,11 +39,19 @@
     position: fixed;
     inset: 0;
     pointer-events: none;
-    background-image:
-      linear-gradient(rgba(255,255,255,.018) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(255,255,255,.018) 1px, transparent 1px);
-    background-size: 44px 44px;
-    mask-image: radial-gradient(circle at center, black 40%, transparent 95%);
+    background: none;
+  }
+
+  body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background:
+      linear-gradient(115deg, transparent 0 42%, rgba(255,255,255,.03) 49%, transparent 56%),
+      linear-gradient(295deg, transparent 0 46%, rgba(114,231,247,.04) 52%, transparent 58%);
+    opacity: .35;
+    mix-blend-mode: screen;
   }
 
   .app {
@@ -79,14 +84,7 @@
   }
 
   .hero::after {
-    content: "";
-    position: absolute;
-    width: 320px;
-    height: 320px;
-    right: -110px;
-    top: -120px;
-    border-radius: 50%;
-    background: radial-gradient(circle, rgba(114,231,247,.18), transparent 68%);
+    content: none;
   }
 
   .eyebrow {
@@ -102,6 +100,13 @@
     font-size: clamp(1.8rem, 4vw, 3rem);
     line-height: 1;
     font-weight: 800;
+  }
+
+  .logo-title {
+    font-family: "Avenir Next Condensed", "Arial Narrow", "Trebuchet MS", "Gill Sans", ui-sans-serif, system-ui, sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    text-shadow: 0 0 26px rgba(114,231,247,.12), 0 10px 40px rgba(0,0,0,.22);
   }
 
   .hero p {
@@ -286,6 +291,8 @@
     display: grid;
     place-items: center;
     font-weight: 900;
+    font-size: 0.9rem;
+    letter-spacing: 0.04em;
     letter-spacing: 0.08em;
     color: #fff;
     position: relative;
@@ -934,33 +941,46 @@
     color: var(--soft);
     line-height: 1.6;
   }
+
 </style>
 </head>
 <body>
   <div class="app">
     <div class="topbar">
       <section class="hero glass">
-        <div class="eyebrow">Simulation Studio</div>
-        <h1>Chrimata</h1>
+        <div class="eyebrow">Youth Investor Lab</div>
+        <h1 class="logo-title">CHRIMATA</h1>
         <p>
-          A strategy-first stock simulator with basic live trading, portfolio tracking,
-          watchlists, and a cleaner editorial interface.
+          A teaching-first stock simulator built to help younger investors learn market basics, explore strategy, and practice trading in a more thoughtful interface.
         </p>
         <div class="hero-strip">
           <div class="pill">Session <strong id="dayDisplay">Day 1</strong></div>
           <div class="pill">Regime <strong id="regimeDisplay">Balanced</strong></div>
           <div class="pill">Sentiment <strong id="sentimentText">0</strong></div>
           <div class="pill">Unfilled Orders <strong id="pendingCountTop">0</strong></div>
+          <button class="btn btn-ghost" id="tourBtn" type="button">Take the tour</button>
         </div>
       </section>
 
       <section class="stats-wrap">
         <div class="stat-card glass">
           <div class="stat-grid">
-            <div class="stat"><div class="label">Cash</div><div class="value green" id="cashDisplay">$25,000.00</div></div>
-            <div class="stat"><div class="label">Net Worth</div><div class="value blue" id="netWorthDisplay">$25,000.00</div></div>
-            <div class="stat"><div class="label">Unrealized P&amp;L</div><div class="value" id="pnlDisplay">$0.00</div></div>
-            <div class="stat"><div class="label">Risk Score</div><div class="value gold" id="riskDisplay">0 / 100</div></div>
+            <div class="stat">
+              <div class="label label-row">Cash</div>
+              <div class="value green" id="cashDisplay">$25,000.00</div>
+            </div>
+            <div class="stat">
+              <div class="label label-row">Net Worth <button class="info-btn" type="button" onclick="openInfo('netWorth')">i</button></div>
+              <div class="value blue" id="netWorthDisplay">$25,000.00</div>
+            </div>
+            <div class="stat">
+              <div class="label label-row">Unrealized P&amp;L <button class="info-btn" type="button" onclick="openInfo('unrealizedPL')">i</button></div>
+              <div class="value" id="pnlDisplay">$0.00</div>
+            </div>
+            <div class="stat">
+              <div class="label label-row">Risk Score <button class="info-btn" type="button" onclick="openInfo('riskScore')">i</button></div>
+              <div class="value gold" id="riskDisplay">0 / 100</div>
+            </div>
           </div>
         </div>
       </section>
@@ -971,13 +991,20 @@
         <div class="tabs">
           <button class="tab active" data-tab="market">Market</button>
           <button class="tab" data-tab="portfolio">Portfolio</button>
+          <button class="tab" data-tab="orders">Orders</button>
           <button class="tab" data-tab="history">History</button>
+          <button class="tab" data-tab="learn">Learn</button>
         </div>
 
         <section class="panel glass active" id="panel-market">
           <div class="section-title">
             <h2>Market board</h2>
-            <span>Market rendering, buy/sell actions, and watchlist support are working.</span>
+            <span>Use market orders for instant execution or place limits and wait for price triggers.</span>
+          </div>
+          <div class="market-toolbar">
+            <div class="chip">Cycle: <strong id="cycleLabel">Open</strong></div>
+            <div class="chip">Top mover: <strong id="topMoverLabel">—</strong></div>
+            <div class="chip">News pulse: <strong id="newsPulseLabel">Quiet</strong></div>
           </div>
           <div class="market-grid" id="marketGrid"></div>
         </section>
@@ -985,32 +1012,80 @@
         <section class="panel glass" id="panel-portfolio">
           <div class="section-title">
             <h2>Portfolio</h2>
-            <span>Basic portfolio accounting and unrealized P&amp;L.</span>
+            <span>Diversification and average cost matter more than just chasing the fastest mover.</span>
           </div>
           <div class="summary-grid" id="summaryGrid"></div>
           <div class="portfolio-grid" id="portfolioGrid"></div>
         </section>
 
+        <section class="panel glass" id="panel-orders">
+          <div class="section-title">
+            <h2>Pending orders</h2>
+            <span>Limit orders <button class="info-btn" type="button" onclick="openInfo('limitOrders')">i</button> execute automatically when price conditions are met during simulation.</span>
+          </div>
+          <div class="pending-grid" id="pendingGrid"></div>
+        </section>
+
         <section class="panel glass" id="panel-history">
           <div class="section-title">
             <h2>Activity feed</h2>
-            <span>Buys and sells are now logged here.</span>
+            <span>Every trade, news event, and filled limit order appears here.</span>
           </div>
           <div class="history-list" id="historyList"></div>
+        </section>
+
+        <section class="panel glass" id="panel-learn">
+          <div class="section-title">
+            <h2>Learn</h2>
+            <span>Choose a track based on how comfortable you are with investing concepts.</span>
+          </div>
+          <div class="lesson-levels" id="lessonLevels">
+            <button class="lesson-level-btn active" data-level="beginner">Beginner topics</button>
+            <button class="lesson-level-btn" data-level="intermediate">Intermediate</button>
+            <button class="lesson-level-btn" data-level="pro">Pro</button>
+            <button class="lesson-level-btn tutorial-replay-btn" id="restartTutorialBtn" type="button">Replay tutorial</button>
+          </div>
+          <div class="lessons" id="lessonList"></div>
+          <div class="lesson-detail" id="lessonDetail"></div>
         </section>
       </main>
 
       <aside class="sidebar">
         <section class="sidebar-card glass">
-          <div class="sidebar-label">Market regime</div>
+          <div class="sidebar-label label-row">Market regime <button class="info-btn" type="button" onclick="openInfo('marketRegime')">i</button></div>
           <h3 id="regimeTitle">Balanced</h3>
-          <div class="small">A steady market with moderate volatility and mixed leadership.</div>
+          <div class="small" id="regimeDescription">A steady market with moderate volatility and mixed leadership.</div>
+          <div class="market-meter"><span id="sentimentMeter"></span></div>
+          <div class="sidebar-row">
+            <div class="tiny label-row">Sentiment <button class="info-btn" type="button" onclick="openInfo('sentiment')">i</button></div>
+            <strong id="sentimentNumber">0</strong>
+          </div>
         </section>
 
         <section class="sidebar-card glass">
-          <div class="sidebar-label">Watchlist</div>
+          <div class="sidebar-label label-row">Watchlist <button class="info-btn" type="button" onclick="openInfo('watchlist')">i</button></div>
           <div class="list" id="watchlistBox">
             <div class="list-item">No stocks on your watchlist yet.</div>
+          </div>
+        </section>
+
+        <section class="sidebar-card glass">
+          <div class="sidebar-label label-row">Controls <button class="info-btn" type="button" onclick="openInfo('simulationControls')">i</button></div>
+          <div class="sidebar-row">
+            <div class="small">Simulation</div>
+            <button class="btn btn-ghost" id="toggleSimBtn">Pause</button>
+          </div>
+          <div class="sidebar-row">
+            <div class="small">Advance one day</div>
+            <button class="btn btn-ghost" id="stepBtn">Step</button>
+          </div>
+          <div class="sidebar-row">
+            <div class="small">Speed</div>
+            <select class="select" id="speedSelect">
+              <option value="2500">Normal</option>
+              <option value="1600">Fast</option>
+              <option value="900">Turbo</option>
+            </select>
           </div>
         </section>
 
@@ -1021,111 +1096,605 @@
       </aside>
     </div>
 
-    <div class="footer-note">Reconstructed milestone 3 of 5.</div>
+    <div class="footer-note">This simulator uses fictional brands and stylized market behavior for learning purposes.</div>
   </div>
 
+  <div class="overlay" id="tradeOverlay">
+    <div class="modal glass">
+      <div class="modal-head">
+        <div>
+          <div class="eyebrow" id="modalMode">Market order</div>
+          <h3 id="modalTitle">Place trade</h3>
+          <div class="small" id="modalSubtitle">Current price $0.00</div>
+        </div>
+        <button class="btn btn-ghost" id="closeModalBtn">Close</button>
+      </div>
+
+      <div class="modal-grid">
+        <div class="field">
+          <label>Order type</label>
+          <select id="orderType" class="select">
+            <option value="market">Market order</option>
+            <option value="limit">Limit order</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Shares <span id="qtyLabel"></span></label>
+          <div class="range-wrap">
+            <div style="font-size:1.7rem;font-weight:800;margin-bottom:8px;" id="qtyDisplay">1</div>
+            <input type="range" min="1" max="1" value="1" id="qtySlider">
+          </div>
+        </div>
+
+        <div class="field" id="limitPriceField" style="display:none;">
+          <label>Limit price</label>
+          <input id="limitPriceInput" class="input" type="number" step="0.01" min="0.01" />
+        </div>
+
+        <div class="trade-summary">
+          <div class="sidebar-row"><div class="small">Price</div><strong id="summaryPrice">$0.00</strong></div>
+          <div class="sidebar-row"><div class="small">Shares</div><strong id="summaryShares">1</strong></div>
+          <div class="sidebar-row"><div class="small" id="summaryLabel">Estimated total</div><strong id="summaryTotal">$0.00</strong></div>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn btn-ghost" id="watchToggleBtn">Add to watchlist</button>
+        <button class="btn btn-buy" id="confirmTradeBtn">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="overlay" id="infoOverlay">
+    <div class="modal glass info-modal">
+      <div class="modal-head">
+        <div>
+          <div class="eyebrow">Term guide</div>
+          <h3 id="infoTitle">What does this mean?</h3>
+        </div>
+        <button class="btn btn-ghost" id="closeInfoBtn" type="button">Close</button>
+      </div>
+      <div class="small" id="infoBody"></div>
+    </div>
+  </div>
+
+  <div class="toast glass" id="toast"></div>
+
+  <div class="tutorial-overlay" id="tutorialOverlay" aria-hidden="true">
+    <div class="tutorial-spotlight" id="tutorialSpotlight"></div>
+    <div class="tutorial-card glass" id="tutorialCard">
+      <div class="tutorial-kicker">First-time walkthrough</div>
+      <h3 id="tutorialTitle">Welcome to Chrimata</h3>
+      <div class="tutorial-note" id="tutorialBody">This quick tour shows where to place trades, track your portfolio, and control the simulation.</div>
+      <div class="tutorial-progress" id="tutorialProgress"></div>
+      <div class="tutorial-actions">
+        <button class="btn btn-ghost" id="tutorialSkipBtn">Skip</button>
+        <button class="btn btn-ghost" id="tutorialBackBtn">Back</button>
+        <button class="btn btn-buy" id="tutorialNextBtn">Next</button>
+      </div>
+    </div>
+  </div>
+
+
 <script>
-const STOCKS = [
-  { ticker: 'ALBA', name: 'Alba Devices', sector: 'Consumer Tech', desc: 'Design-led hardware and personal devices.', price: 132, prevPrice: 132, beta: 1.1, dividend: 0.7, momentum: 0.9, logo: 'A', palette: ['#78a6ff','#4254f5'] },
-  { ticker: 'VRTX', name: 'Vertex Grid', sector: 'Infrastructure', desc: 'Cloud logistics and industrial software.', price: 88, prevPrice: 88, beta: 0.9, dividend: 1.4, momentum: 0.3, logo: 'V', palette: ['#72e7f7','#117ea1'] },
-  { ticker: 'MIRA', name: 'Mirador Media', sector: 'Entertainment', desc: 'Streaming, gaming, and interactive stories.', price: 56, prevPrice: 56, beta: 1.25, dividend: 0.0, momentum: 1.6, logo: 'M', palette: ['#c49dff','#7c4dff'] },
-  { ticker: 'SOLA', name: 'Solara Renewables', sector: 'Energy', desc: 'Grid-scale storage and solar hardware.', price: 104, prevPrice: 104, beta: 1.15, dividend: 0.4, momentum: -0.4, logo: 'S', palette: ['#ffd166','#e38b00'] },
-  { ticker: 'HAVN', name: 'Haven Foods', sector: 'Consumer Staples', desc: 'Everyday packaged foods with stable cash flow.', price: 63, prevPrice: 63, beta: 0.7, dividend: 2.2, momentum: 0.1, logo: 'H', palette: ['#5ce0a0','#128f67'] }
+const MARKET_REGIMES = [
+  { key: 'bull', label: 'Bull Run', drift: 0.011, volatilityBoost: 0.85, sentimentBias: 18, description: 'Momentum and optimism dominate. Growth names usually lead.' },
+  { key: 'balanced', label: 'Balanced', drift: 0.002, volatilityBoost: 1.0, sentimentBias: 0, description: 'A steady market with moderate volatility and mixed leadership.' },
+  { key: 'bear', label: 'Bear Slide', drift: -0.009, volatilityBoost: 1.25, sentimentBias: -22, description: 'Risk-off behavior takes over. Defensive sectors tend to outperform.' },
+  { key: 'rotation', label: 'Sector Rotation', drift: 0.001, volatilityBoost: 1.18, sentimentBias: 5, description: 'Leadership changes quickly. News and sector trends matter more than average.' }
 ];
 
-const state = {
+const STOCKS = [
+  { ticker: 'ALBA', name: 'Alba Devices', sector: 'Consumer Tech', desc: 'Design-led hardware and personal devices.', price: 132, volatility: 0.017, beta: 1.1, dividend: 0.7, logo: 'AL', palette: ['#78a6ff','#4254f5'], news: ['launches a premium wearable line', 'reports strong holiday demand', 'faces rising component costs'] },
+  { ticker: 'VRTX', name: 'Vertex Grid', sector: 'Infrastructure', desc: 'Cloud logistics and industrial software.', price: 88, volatility: 0.013, beta: 0.9, dividend: 1.4, logo: 'VG', palette: ['#72e7f7','#117ea1'], news: ['wins a national freight contract', 'misses deployment timelines', 'announces a profitable software expansion'] },
+  { ticker: 'MIRA', name: 'Mirador Media', sector: 'Entertainment', desc: 'Streaming, gaming, and interactive stories.', price: 56, volatility: 0.025, beta: 1.25, dividend: 0.0, logo: 'MM', palette: ['#c49dff','#7c4dff'], news: ['greenlights a breakout franchise', 'loses subscribers in mature markets', 'expands its game studio portfolio'] },
+  { ticker: 'SOLA', name: 'Solara Renewables', sector: 'Energy', desc: 'Grid-scale storage and solar hardware.', price: 104, volatility: 0.022, beta: 1.15, dividend: 0.4, logo: 'SR', palette: ['#ffd166','#e38b00'], news: ['secures a utility-scale battery deal', 'warns about margin pressure', 'benefits from new clean-energy incentives'] },
+  { ticker: 'HAVN', name: 'Haven Foods', sector: 'Consumer Staples', desc: 'Everyday packaged foods with stable cash flow.', price: 63, volatility: 0.009, beta: 0.7, dividend: 2.2, logo: 'HF', palette: ['#5ce0a0','#128f67'], news: ['raises guidance after steady sales', 'struggles with commodity inflation', 'announces a strong dividend increase'] },
+  { ticker: 'ORBT', name: 'Orbit Mobility', sector: 'Mobility', desc: 'Autonomous transit systems and fleet software.', price: 148, volatility: 0.028, beta: 1.35, dividend: 0.0, logo: 'OM', palette: ['#ff7d7d','#c53030'], news: ['reveals a major city pilot program', 'recalls a key vehicle component', 'surprises investors with software revenue growth'] },
+  { ticker: 'NOVA', name: 'Nova Health', sector: 'Healthcare', desc: 'Diagnostic devices and clinical AI tools.', price: 117, volatility: 0.014, beta: 0.85, dividend: 1.0, logo: 'NH', palette: ['#9bd0ff','#2e7de1'], news: ['wins approval for a new scanner', 'faces reimbursement uncertainty', 'posts improving recurring revenue'] },
+  { ticker: 'QUIL', name: 'Quill Finance', sector: 'Financials', desc: 'Digital payments and regional lending.', price: 94, volatility: 0.018, beta: 1.0, dividend: 1.8, logo: 'QF', palette: ['#f8c4ff','#ac3de8'], news: ['benefits from falling default rates', 'tightens reserves after a credit scare', 'adds a fast-growing payments product'] }
+];
+
+const LESSONS = [
+  {
+    level: 'beginner',
+    title: 'What a stock price means',
+    intro: 'Start with the basic idea behind a share price and daily movement.',
+    body: `<p>A <strong>stock price</strong> is what one share currently trades for in the market. When the simulator updates, that price changes based on sentiment, market regime, and company-specific news.</p>
+           <p>If ALBA moves from $100 to $104, that does not mean you earned $104. It means each share is now worth $4 more than before.</p>
+           <p>Use this simulator to connect price movement with the value of the shares you own.</p>`,
+    quiz: { q: 'If you own 3 shares and the stock rises by $2 per share, how much did your position value increase?', opts: ['$2', '$3', '$6', '$200'], answer: 2 }
+  },
+  {
+    level: 'beginner',
+    title: 'Market orders vs limit orders',
+    intro: 'Learn the difference between instant execution and waiting for a target price.',
+    body: `<p><strong>Market orders</strong> execute immediately at the current price. They are useful when you care more about entering or exiting quickly than about the exact price.</p>
+           <p><strong>Limit orders</strong> only execute if the market reaches your chosen price. A buy limit waits for a dip. A sell limit waits for a rally.</p>
+           <p>That means limit orders give you more control, but they may never fill.</p>`,
+    quiz: { q: 'What is the main tradeoff of a limit order?', opts: ['It is always more expensive', 'It gives price control but may not execute', 'It removes all risk', 'It guarantees a profit'], answer: 1 }
+  },
+  {
+    level: 'beginner',
+    title: 'Building your first portfolio',
+    intro: 'A portfolio is just the collection of positions you own.',
+    body: `<p>Your <strong>portfolio</strong> is the basket of stocks you hold plus the cash you still have available. In the simulator, each purchase adds a position or increases an existing one.</p>
+           <p>Beginners often make the mistake of spending all their cash on one exciting stock. A better start is usually spreading money across a few names so one move does not decide everything.</p>`,
+    quiz: { q: 'Which action usually makes a beginner portfolio less fragile?', opts: ['Buying only one stock', 'Keeping all cash forever', 'Owning a few different stocks', 'Only buying the most expensive stock'], answer: 2 }
+  },
+  {
+    level: 'intermediate',
+    title: 'Diversification and risk score',
+    intro: 'See how concentration and stock behavior affect portfolio risk.',
+    body: `<p>If most of your money is tied to one volatile stock, your account can swing wildly. The simulator estimates a simple <strong>risk score</strong> using concentration and stock betas.</p>
+           <p>Owning businesses from different sectors can reduce your exposure to any one shock, which is why the coach nudges you toward balance.</p>`,
+    quiz: { q: 'Which portfolio usually has a lower concentration risk?', opts: ['100% in one stock', 'A mix across sectors', 'Only the priciest stock', 'A portfolio with no cash'], answer: 1 }
+  },
+  {
+    level: 'intermediate',
+    title: 'Momentum, beta, and yield',
+    intro: 'These metrics tell you different stories about a stock.',
+    body: `<p><strong>Momentum</strong> shows whether a stock has been trending up or down recently. <strong>Beta</strong> estimates how sensitive it is to market swings. <strong>Dividend yield</strong> shows how much cash a company returns to shareholders relative to price.</p>
+           <p>A high-beta stock may rise fast in good times and fall hard in bad times. A dividend stock may move more slowly but provide steadier income characteristics.</p>`,
+    quiz: { q: 'Which metric is most directly about sensitivity to overall market swings?', opts: ['Yield', 'Beta', 'Momentum', 'Share count'], answer: 1 }
+  },
+  {
+    level: 'intermediate',
+    title: 'Reading the activity feed',
+    intro: 'History is more than a log. It helps you understand cause and effect.',
+    body: `<p>The <strong>activity feed</strong> records buys, sells, limit fills, and news events. This lets you look back and connect a portfolio change to the event that caused it.</p>
+           <p>That habit matters because good investing is not only about outcomes. It is also about understanding why a trade worked or failed.</p>`,
+    quiz: { q: 'Why is the history panel useful?', opts: ['It predicts the future perfectly', 'It shows what events and trades changed your account', 'It deletes bad trades', 'It guarantees better returns'], answer: 1 }
+  },
+  {
+    level: 'pro',
+    title: 'Regimes change behavior',
+    intro: 'A bull market and a bear market should not feel the same.',
+    body: `<p>The simulator rotates through market regimes like <strong>Bull Run</strong>, <strong>Balanced</strong>, and <strong>Bear Slide</strong>.</p>
+           <p>In bullish regimes, growth stocks may drift upward more often. In bearish periods, defensive names can hold up better while high-beta names may swing more violently.</p>
+           <p>Advanced users adjust position size and expectations based on regime instead of assuming the same strategy always works.</p>`,
+    quiz: { q: 'In a bear market, which type often holds up better?', opts: ['Highly speculative stocks', 'Defensive sectors', 'Stocks with no earnings', 'Only the top mover'], answer: 1 }
+  },
+  {
+    level: 'pro',
+    title: 'Position sizing and dry powder',
+    intro: 'How much you buy can matter as much as what you buy.',
+    body: `<p><strong>Position sizing</strong> is the process of deciding how much capital to put into one trade. Even if you love a stock, putting too much into a single idea can damage the whole portfolio.</p>
+           <p>Keeping some cash, sometimes called <strong>dry powder</strong>, gives you flexibility when prices fall or a better setup appears later.</p>`,
+    quiz: { q: 'Why might an advanced trader keep some cash uninvested?', opts: ['Because stocks can never go up', 'To stay flexible for future opportunities and reduce overcommitment', 'Because diversification is bad', 'To make the simulator run faster'], answer: 1 }
+  },
+  {
+    level: 'pro',
+    title: 'Scenario thinking instead of prediction',
+    intro: 'Strong decisions come from planning for multiple outcomes.',
+    body: `<p>Rather than guessing one exact future, advanced investors often think in <strong>scenarios</strong>: bullish, base, and bearish outcomes.</p>
+           <p>In this simulator, headlines, sentiment, and regime shifts create changing conditions. A strong process asks, “What will I do if the market rallies, stalls, or reverses?” before the move happens.</p>`,
+    quiz: { q: 'What does scenario thinking encourage?', opts: ['Only one perfect forecast', 'Planning for multiple possible outcomes', 'Ignoring risk', 'Trading randomly'], answer: 1 }
+  }
+];
+
+let lessonLevel = 'beginner';
+let selectedLessonTitle = null;
+
+const TUTORIAL_STORAGE_KEY = 'chrimata_tutorial_seen_v2';
+const TUTORIAL_STEPS = [
+  {
+    title: 'Welcome to Chrimata',
+    body: 'This simulator has a live market board, watchlist, portfolio analytics, and a built-in coach. The tour will point out the main parts in under a minute.',
+    target: '.hero',
+    placement: 'bottom-left',
+    prep: null
+  },
+  {
+    title: 'Start in the market tab',
+    body: "Each card shows the stock's price, move, beta, yield, and momentum. Use Buy or Sell for instant trades, or star a stock to keep it on your watchlist.",
+    target: '#panel-market',
+    placement: 'top-right',
+    prep: () => activateTab('market')
+  },
+  {
+    title: 'Track the bigger picture',
+    body: 'The right sidebar shows the current regime, sentiment, watchlist, and simulation controls. Pause, step forward a day, or speed the market up here.',
+    target: '.sidebar',
+    placement: 'left-middle',
+    prep: null
+  },
+  {
+    title: 'Review your positions here',
+    body: 'The portfolio tab summarizes stock value, diversification, and unrealized profit or loss. After a few trades, this becomes your main dashboard.',
+    target: '#panel-portfolio',
+    placement: 'top-right',
+    prep: () => activateTab('portfolio')
+  },
+  {
+    title: 'Use orders and history to learn',
+    body: 'Pending Orders stores your limit orders until price conditions are hit, and History logs all fills and news. You are ready to start exploring.',
+    target: '#panel-orders',
+    placement: 'top-right',
+    prep: () => activateTab('orders')
+  }
+];
+
+let state = {
   cash: 25000,
   portfolio: {},
   history: [],
-  watchlist: []
+  pendingOrders: [],
+  watchlist: [],
+  currentTrade: null,
+  day: 1,
+  sentiment: 0,
+  regime: MARKET_REGIMES[1],
+  intervalId: null,
+  simPaused: false,
+  speed: 2500,
+  headline: 'No major events yet. Watch for earnings, supply shocks, and sector rotation.',
+  cycle: 'Open'
 };
 
-function currency(v) { return '$' + Number(v).toFixed(2); }
-function percent(v) { return (v >= 0 ? '+' : '') + v.toFixed(1) + '%'; }
+STOCKS.forEach(stock => {
+  stock.prevPrice = stock.price;
+  stock.history = Array.from({ length: 24 }, (_, i) => stock.price * (0.96 + i * 0.003));
+  stock.momentum = 0;
+  stock.eventBias = 0;
+  stock.eventTimer = 0;
+});
+
+const $ = (id) => document.getElementById(id);
+
+const INFO_GLOSSARY = {
+  netWorth: {
+    title: 'Net Worth',
+    body: `<p>Your net worth is <strong>cash + the current market value of your stocks</strong>. It is the broadest snapshot of how your account is doing right now.</p>
+           <p>It goes up when your holdings rise in price or you make profitable trades, and down when your holdings fall.</p>`
+  },
+  unrealizedPL: {
+    title: 'Unrealized P&L',
+    body: `<p>P&amp;L means <strong>profit and loss</strong>. Unrealized P&amp;L measures gains or losses on positions you still own.</p>
+           <p>It is called “unrealized” because you have not locked it in by selling yet.</p>`
+  },
+  riskScore: {
+    title: 'Risk Score',
+    body: `<p>This simulator estimates risk from how concentrated your portfolio is and how volatile your stocks tend to be.</p>
+           <p>A higher score usually means bigger account swings are more likely. It is a learning aid, not a real-world risk model.</p>`
+  },
+  marketRegime: {
+    title: 'Market Regime',
+    body: `<p>A market regime is the overall environment the market is in, such as bullish, balanced, or bearish.</p>
+           <p>Different regimes can favor different kinds of stocks. Growth names may do better in strong markets, while steadier companies may hold up better in weak ones.</p>`
+  },
+  sentiment: {
+    title: 'Sentiment',
+    body: `<p>Sentiment is a simple measure of the market’s mood.</p>
+           <p>Positive sentiment means traders are acting more optimistic on average. Negative sentiment means they are acting more cautious or fearful.</p>`
+  },
+  watchlist: {
+    title: 'Watchlist',
+    body: `<p>Your watchlist is a shortlist of stocks you want to monitor without buying yet.</p>
+           <p>Use it to compare names, wait for better prices, or track ideas before committing cash.</p>`
+  },
+  simulationControls: {
+    title: 'Simulation Controls',
+    body: `<p>These controls change how quickly the fictional market moves.</p>
+           <ul>
+             <li><strong>Pause</strong> stops automatic updates.</li>
+             <li><strong>Step</strong> advances the market by one day.</li>
+             <li><strong>Speed</strong> changes how fast time passes.</li>
+           </ul>`
+  },
+  stockValue: {
+    title: 'Stock Value',
+    body: `<p>Stock value is the total market value of all the shares you currently own.</p>
+           <p>It is calculated as each position’s current price times the number of shares, then added together.</p>`
+  },
+  positions: {
+    title: 'Positions',
+    body: `<p>A position is any stock you currently hold.</p>
+           <p>If you own shares in three different companies, you have three positions.</p>`
+  },
+  diversification: {
+    title: 'Diversification',
+    body: `<p>Diversification means spreading your money across different investments instead of putting everything into one stock.</p>
+           <p>In this simulator, a higher diversification score usually means your money is less concentrated in a single name or sector.</p>`
+  },
+  totalPL: {
+    title: 'Total P&L',
+    body: `<p>Total P&amp;L compares what your current holdings are worth against what you paid for them.</p>
+           <p>Positive P&amp;L means your portfolio is above cost basis. Negative P&amp;L means it is below cost basis.</p>`
+  },
+  avgCost: {
+    title: 'Average Cost',
+    body: `<p>Average cost is the average price you paid per share for a position.</p>
+           <p>If you buy the same stock multiple times at different prices, this number blends those purchases together.</p>`
+  },
+  marketValue: {
+    title: 'Market Value',
+    body: `<p>Market value is what a position is worth at the current price right now.</p>
+           <p>It can change every simulated day even if you do not trade.</p>`
+  },
+  beta: {
+    title: 'Beta',
+    body: `<p>Beta estimates how strongly a stock tends to move compared with the overall market.</p>
+           <p>A beta above 1 usually means larger swings than the market. Below 1 usually means smaller swings.</p>`
+  },
+  yield: {
+    title: 'Dividend Yield',
+    body: `<p>Dividend yield shows annual dividend payments as a percentage of the stock price.</p>
+           <p>It helps you compare income-oriented stocks, though a higher yield is not automatically better.</p>`
+  },
+  momentum: {
+    title: 'Momentum',
+    body: `<p>Momentum shows whether a stock has been trending up or down recently.</p>
+           <p>Positive momentum means it has been rising lately. Negative momentum means it has been falling.</p>`
+  },
+  limitOrders: {
+    title: 'Limit Orders',
+    body: `<p>A limit order tells the simulator to buy or sell only when a stock reaches a price you choose.</p>
+           <p>That gives you more control over price, but the order may never fill.</p>`
+  }
+};
+
+function openInfo(key) {
+  const item = INFO_GLOSSARY[key];
+  if (!item) return;
+  $('infoTitle').textContent = item.title;
+  $('infoBody').innerHTML = item.body;
+  $('infoOverlay').classList.add('open');
+}
+
+function closeInfo() {
+  $('infoOverlay').classList.remove('open');
+}
+
+function infoBtn(key) {
+  return `<button class="info-btn" type="button" onclick="openInfo('${key}')">i</button>`;
+}
+
+
+function activateTab(tabName) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tabName));
+  document.querySelectorAll('.panel').forEach(p => p.classList.toggle('active', p.id === 'panel-' + tabName));
+}
+
+const tutorial = {
+  active: false,
+  step: 0
+};
+
+function getTutorialTarget(step) {
+  return document.querySelector(step.target);
+}
+
+function positionTutorialCard(targetRect, placement) {
+  const card = $('tutorialCard');
+  const margin = 16;
+  const vw = window.innerWidth;
+  const vh = window.innerHeight;
+  const cardRect = card.getBoundingClientRect();
+  let top = targetRect.bottom + margin;
+  let left = targetRect.left;
+
+  if (placement === 'top-right') {
+    top = targetRect.top - cardRect.height - margin;
+    left = Math.min(targetRect.right - cardRect.width, vw - cardRect.width - margin);
+  } else if (placement === 'left-middle') {
+    top = targetRect.top + Math.max(0, (targetRect.height - cardRect.height) / 2);
+    left = targetRect.left - cardRect.width - margin;
+  } else if (placement === 'bottom-left') {
+    top = targetRect.bottom + margin;
+    left = targetRect.left;
+  }
+
+  if (left < margin) left = margin;
+  if (left + cardRect.width > vw - margin) left = vw - cardRect.width - margin;
+  if (top < margin) top = margin;
+  if (top + cardRect.height > vh - margin) top = vh - cardRect.height - margin;
+
+  card.style.left = left + 'px';
+  card.style.top = top + 'px';
+}
+
+function renderTutorialStep() {
+  const step = TUTORIAL_STEPS[tutorial.step];
+  if (!step) return;
+  if (typeof step.prep === 'function') step.prep();
+  refreshAll();
+  $('tutorialTitle').textContent = step.title;
+  $('tutorialBody').textContent = step.body;
+  $('tutorialBackBtn').disabled = tutorial.step === 0;
+  $('tutorialBackBtn').style.opacity = tutorial.step === 0 ? '.45' : '1';
+  $('tutorialNextBtn').textContent = tutorial.step === TUTORIAL_STEPS.length - 1 ? 'Start trading' : 'Next';
+  $('tutorialProgress').innerHTML = TUTORIAL_STEPS.map((_, i) => `<span class="${i <= tutorial.step ? 'active' : ''}"></span>`).join('');
+
+  requestAnimationFrame(() => {
+    const target = getTutorialTarget(step);
+    const spotlight = $('tutorialSpotlight');
+    if (!target) return;
+    const rect = target.getBoundingClientRect();
+    spotlight.style.left = (rect.left - 8) + 'px';
+    spotlight.style.top = (rect.top - 8) + 'px';
+    spotlight.style.width = (rect.width + 16) + 'px';
+    spotlight.style.height = (rect.height + 16) + 'px';
+    positionTutorialCard(rect, step.placement);
+  });
+}
+
+function syncTutorialSpotlight() {
+  if (!tutorial.active) return;
+  renderTutorialStep();
+}
+
+function startTutorial(force = false) {
+  try {
+    if (force) localStorage.removeItem(TUTORIAL_STORAGE_KEY);
+    if (!force && localStorage.getItem(TUTORIAL_STORAGE_KEY)) return;
+  } catch (err) {
+    console.warn('Tutorial storage unavailable.', err);
+  }
+
+  tutorial.active = true;
+  tutorial.step = 0;
+  activateTab('market');
+  const overlay = $('tutorialOverlay');
+  overlay.classList.add('open');
+  overlay.setAttribute('aria-hidden', 'false');
+
+  requestAnimationFrame(() => {
+    renderTutorialStep();
+    setTimeout(syncTutorialSpotlight, 80);
+    setTimeout(syncTutorialSpotlight, 220);
+  });
+}
+
+function finishTutorial(markSeen = true) {
+  tutorial.active = false;
+  $('tutorialOverlay').classList.remove('open');
+  $('tutorialOverlay').setAttribute('aria-hidden', 'true');
+  activateTab('market');
+  if (markSeen) {
+    try {
+      localStorage.setItem(TUTORIAL_STORAGE_KEY, '1');
+    } catch (err) {
+      console.warn('Tutorial state could not be saved.', err);
+    }
+  }
+}
+
+function nextTutorialStep() {
+  if (tutorial.step >= TUTORIAL_STEPS.length - 1) {
+    finishTutorial(true);
+    showToast('Tutorial completed. You are ready to trade.');
+    return;
+  }
+  tutorial.step += 1;
+  renderTutorialStep();
+}
+
+function previousTutorialStep() {
+  if (tutorial.step === 0) return;
+  tutorial.step -= 1;
+  renderTutorialStep();
+}
+
+function currency(v) {
+  return '$' + Number(v).toFixed(2);
+}
+
+function percent(v) {
+  return (v >= 0 ? '+' : '') + v.toFixed(1) + '%';
+}
+
+function clamp(n, min, max) {
+  return Math.max(min, Math.min(max, n));
+}
 
 function getPortfolioValue() {
-  return Object.entries(state.portfolio).reduce((sum, [ticker, pos]) => {
+  return Object.keys(state.portfolio).reduce((sum, ticker) => {
     const stock = STOCKS.find(s => s.ticker === ticker);
-    return sum + pos.shares * stock.price;
+    return sum + state.portfolio[ticker].shares * stock.price;
   }, 0);
 }
 
 function getCostBasis() {
-  return Object.values(state.portfolio).reduce((sum, pos) => sum + pos.shares * pos.avgCost, 0);
-}
-
-function getUnrealizedPL() {
-  return getPortfolioValue() - getCostBasis();
+  return Object.keys(state.portfolio).reduce((sum, ticker) => {
+    const p = state.portfolio[ticker];
+    return sum + p.shares * p.avgCost;
+  }, 0);
 }
 
 function getNetWorth() {
   return state.cash + getPortfolioValue();
 }
 
-function getRiskScore() {
-  const count = Object.keys(state.portfolio).length;
-  if (!count) return 0;
-  return Math.min(100, Math.round(60 / count + count * 8));
+function getUnrealizedPL() {
+  return getPortfolioValue() - getCostBasis();
 }
 
-function updateStats() {
-  document.getElementById('cashDisplay').textContent = currency(state.cash);
-  document.getElementById('netWorthDisplay').textContent = currency(getNetWorth());
-  const pnl = getUnrealizedPL();
-  const pnlEl = document.getElementById('pnlDisplay');
-  pnlEl.textContent = (pnl >= 0 ? '+' : '-') + currency(Math.abs(pnl));
-  pnlEl.className = 'value ' + (pnl >= 0 ? 'green' : 'red');
-  document.getElementById('riskDisplay').textContent = getRiskScore() + ' / 100';
+function getRiskScore() {
+  const total = getPortfolioValue();
+  if (!total) return 0;
+  let score = 0;
+  Object.entries(state.portfolio).forEach(([ticker, pos]) => {
+    const stock = STOCKS.find(s => s.ticker === ticker);
+    const weight = (pos.shares * stock.price) / total;
+    score += weight * stock.beta * 38;
+    score += weight * clamp(stock.volatility * 900, 0, 30);
+  });
+  const sectors = new Set(Object.keys(state.portfolio).map(t => STOCKS.find(s => s.ticker === t).sector)).size;
+  score += Math.max(0, 24 - sectors * 4);
+  return Math.round(clamp(score, 0, 100));
+}
+
+function getDiversificationScore() {
+  const total = getPortfolioValue();
+  if (!total) return 0;
+  let hhi = 0;
+  Object.entries(state.portfolio).forEach(([ticker, pos]) => {
+    const stock = STOCKS.find(s => s.ticker === ticker);
+    const weight = (pos.shares * stock.price) / total;
+    hhi += weight * weight;
+  });
+  return Math.round((1 - hhi) * 100);
+}
+
+function getTopMover() {
+  const sorted = [...STOCKS].sort((a, b) => Math.abs((b.price - b.prevPrice) / b.prevPrice) - Math.abs((a.price - a.prevPrice) / a.prevPrice));
+  return sorted[0];
 }
 
 function setCoachMessage() {
   const positions = Object.keys(state.portfolio).length;
+  const risk = getRiskScore();
+  const pending = state.pendingOrders.length;
   let msg = 'Start by building two or three positions in different sectors instead of putting everything into one trade.';
-  if (positions >= 2) msg = 'Nice start. Your positions are beginning to diversify the account.';
-  if (positions >= 4) msg = 'The portfolio is spreading out well. Start watching average cost and P&L.';
-  document.getElementById('coachBox').textContent = msg;
+  if (positions >= 3 && risk < 45) msg = 'Nice balance. Your account is diversified enough to reduce single-stock shocks.';
+  if (risk >= 65) msg = 'Your portfolio is getting aggressive. Consider trimming your biggest position or adding a steadier sector.';
+  if (pending > 0) msg = `You have ${pending} pending order${pending > 1 ? 's' : ''}. Limit orders are useful, but check they still match your strategy.`;
+  if (state.regime.key === 'bear') msg = 'Risk-off regime detected. Defensive stocks and patient entries may matter more right now.';
+  $('coachBox').textContent = msg;
 }
 
-function toggleWatchlist(ticker) {
-  const idx = state.watchlist.indexOf(ticker);
-  if (idx === -1) state.watchlist.push(ticker);
-  else state.watchlist.splice(idx, 1);
-  renderWatchlist();
-  renderMarket();
+function renderTopStats() {
+  $('cashDisplay').textContent = currency(state.cash);
+  $('netWorthDisplay').textContent = currency(getNetWorth());
+  const pnl = getUnrealizedPL();
+  $('pnlDisplay').textContent = (pnl >= 0 ? '+' : '-') + currency(Math.abs(pnl));
+  $('pnlDisplay').className = 'value ' + (pnl >= 0 ? 'green' : 'red');
+  $('riskDisplay').textContent = getRiskScore() + ' / 100';
+  $('dayDisplay').textContent = 'Day ' + state.day;
+  $('regimeDisplay').textContent = state.regime.label;
+  $('sentimentText').textContent = state.sentiment > 0 ? '+' + state.sentiment : state.sentiment;
+  $('pendingCountTop').textContent = state.pendingOrders.length;
 }
 
-function renderWatchlist() {
-  const box = document.getElementById('watchlistBox');
-  box.innerHTML = state.watchlist.length
-    ? state.watchlist.map(t => `<div class="list-item"><strong>${t}</strong></div>`).join('')
-    : '<div class="list-item">No stocks on your watchlist yet.</div>';
-}
-
-function buyStock(ticker) {
-  const stock = STOCKS.find(s => s.ticker === ticker);
-  if (state.cash < stock.price) return alert('Not enough cash for this trade.');
-  state.cash -= stock.price;
-  if (!state.portfolio[ticker]) state.portfolio[ticker] = { shares: 0, avgCost: 0 };
-  const pos = state.portfolio[ticker];
-  pos.avgCost = ((pos.avgCost * pos.shares) + stock.price) / (pos.shares + 1);
-  pos.shares += 1;
-  state.history.unshift({ type: 'BUY', text: `Bought 1 share of ${ticker} at ${currency(stock.price)}.` });
-  refreshAll();
-}
-
-function sellStock(ticker) {
-  const stock = STOCKS.find(s => s.ticker === ticker);
-  const pos = state.portfolio[ticker];
-  if (!pos || pos.shares < 1) return;
-  pos.shares -= 1;
-  state.cash += stock.price;
-  state.history.unshift({ type: 'SELL', text: `Sold 1 share of ${ticker} at ${currency(stock.price)}.` });
-  if (pos.shares === 0) delete state.portfolio[ticker];
-  refreshAll();
+function renderSidebar() {
+  $('regimeTitle').textContent = state.regime.label;
+  $('regimeDescription').textContent = state.regime.description;
+  $('sentimentNumber').textContent = state.sentiment > 0 ? '+' + state.sentiment : state.sentiment;
+  $('sentimentMeter').style.width = (50 + state.sentiment * 0.9) + '%';
+  $('sentimentMeter').style.filter = `hue-rotate(${state.sentiment * 1.4}deg)`;
+  const watch = $('watchlistBox');
+  if (!state.watchlist.length) {
+    watch.innerHTML = '<div class="list-item">No stocks on your watchlist yet.</div>';
+  } else {
+    watch.innerHTML = state.watchlist.map(ticker => {
+      const stock = STOCKS.find(s => s.ticker === ticker);
+      const delta = ((stock.price - stock.prevPrice) / stock.prevPrice) * 100;
+      return `<div class="list-item"><strong>${stock.ticker}</strong> · ${currency(stock.price)} <span class="${delta >= 0 ? 'green' : 'red'}">${percent(delta)}</span></div>`;
+    }).join('');
+  }
+  $('cycleLabel').textContent = state.cycle;
+  const mover = getTopMover();
+  const moverPct = ((mover.price - mover.prevPrice) / mover.prevPrice) * 100;
+  $('topMoverLabel').textContent = `${mover.ticker} ${percent(moverPct)}`;
+  $('newsPulseLabel').textContent = Math.abs(state.sentiment) > 15 ? 'Active' : 'Quiet';
+  $('toggleSimBtn').textContent = state.simPaused ? 'Resume' : 'Pause';
+  setCoachMessage();
 }
 
 function renderMarket() {
-  const grid = document.getElementById('marketGrid');
+  const grid = $('marketGrid');
   grid.innerHTML = STOCKS.map(stock => {
     const change = stock.price - stock.prevPrice;
     const pct = (change / stock.prevPrice) * 100;
@@ -1149,76 +1718,522 @@ function renderMarket() {
         </div>
         <div class="stock-desc">${stock.desc}</div>
         <div class="metrics">
-          <div class="metric"><div class="k">Beta</div><div class="v">${stock.beta.toFixed(2)}</div></div>
-          <div class="metric"><div class="k">Yield</div><div class="v">${stock.dividend.toFixed(1)}%</div></div>
-          <div class="metric"><div class="k">Momentum</div><div class="v ${stock.momentum >= 0 ? 'green' : 'red'}">${stock.momentum >= 0 ? '+' : ''}${stock.momentum.toFixed(1)}</div></div>
+          <div class="metric"><div class="k label-row">Beta ${infoBtn('beta')}</div><div class="v">${stock.beta.toFixed(2)}</div></div>
+          <div class="metric"><div class="k label-row">Yield ${infoBtn('yield')}</div><div class="v">${stock.dividend.toFixed(1)}%</div></div>
+          <div class="metric"><div class="k label-row">Momentum ${infoBtn('momentum')}</div><div class="v ${stock.momentum >= 0 ? 'green' : 'red'}">${stock.momentum >= 0 ? '+' : ''}${stock.momentum.toFixed(1)}</div></div>
         </div>
+        <div class="chart-wrap"><canvas class="stock-mini-chart" id="chart-${stock.ticker}"></canvas></div>
         <div class="actions">
-          <button class="btn btn-buy" onclick="buyStock('${stock.ticker}')">Buy</button>
-          <button class="btn btn-sell" onclick="sellStock('${stock.ticker}')" ${owned ? '' : 'disabled style="opacity:.45;cursor:not-allowed;"'}>Sell</button>
+          <button class="btn btn-buy" onclick="openTrade('${stock.ticker}','buy')">Buy</button>
+          <button class="btn btn-sell" onclick="openTrade('${stock.ticker}','sell')" ${owned ? '' : 'disabled style="opacity:.45;cursor:not-allowed;"'}>Sell</button>
           <button class="btn btn-ghost" onclick="toggleWatchlist('${stock.ticker}')">${watching ? '★' : '☆'}</button>
         </div>
-      </article>
-    `;
+      </article>`;
   }).join('');
+  STOCKS.forEach(drawChart);
+}
+
+function drawChart(stock) {
+  const canvas = $('chart-' + stock.ticker);
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const rect = canvas.getBoundingClientRect();
+  canvas.width = Math.max(240, rect.width * window.devicePixelRatio);
+  canvas.height = 68 * window.devicePixelRatio;
+  canvas.style.height = '68px';
+  const w = canvas.width, h = canvas.height;
+  ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+  const width = canvas.width / window.devicePixelRatio;
+  const height = canvas.height / window.devicePixelRatio;
+  ctx.clearRect(0, 0, width, height);
+  const hist = stock.history.slice(-26);
+  const min = Math.min(...hist);
+  const max = Math.max(...hist);
+  const range = Math.max(1, max - min);
+  ctx.strokeStyle = 'rgba(255,255,255,.08)';
+  ctx.lineWidth = 1;
+  for (let i = 1; i <= 2; i++) {
+    const y = (height / 3) * i;
+    ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(width, y); ctx.stroke();
+  }
+  ctx.beginPath();
+  hist.forEach((v, i) => {
+    const x = (i / (hist.length - 1)) * width;
+    const y = height - ((v - min) / range) * (height - 8) - 4;
+    i ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
+  });
+  const grad = ctx.createLinearGradient(0, 0, width, height);
+  grad.addColorStop(0, stock.palette[0]);
+  grad.addColorStop(1, stock.palette[1]);
+  ctx.strokeStyle = grad;
+  ctx.lineWidth = 2.4;
+  ctx.stroke();
 }
 
 function renderPortfolio() {
-  const summary = document.getElementById('summaryGrid');
-  const grid = document.getElementById('portfolioGrid');
+  const summary = $('summaryGrid');
+  const grid = $('portfolioGrid');
   const value = getPortfolioValue();
   const cost = getCostBasis();
   const pnl = value - cost;
   summary.innerHTML = `
-    <div class="tile"><div class="label">Stock Value</div><div class="big">${currency(value)}</div></div>
-    <div class="tile"><div class="label">Positions</div><div class="big">${Object.keys(state.portfolio).length}</div></div>
-    <div class="tile"><div class="label">Diversification</div><div class="big">${Math.max(0, Object.keys(state.portfolio).length * 25)} / 100</div></div>
-    <div class="tile"><div class="label">Total P&amp;L</div><div class="big ${pnl >= 0 ? 'green' : 'red'}">${(pnl >= 0 ? '+' : '-') + currency(Math.abs(pnl))}</div></div>
-  `;
+    <div class="tile"><div class="label label-row">Positions ${infoBtn('positions')}</div><div class="big">${Object.keys(state.portfolio).length}</div></div>
+    <div class="tile"><div class="label label-row">Stock value ${infoBtn('stockValue')}</div><div class="big blue">${currency(value)}</div></div>
+    <div class="tile"><div class="label label-row">Diversification ${infoBtn('diversification')}</div><div class="big gold">${getDiversificationScore()}</div></div>
+    <div class="tile"><div class="label label-row">Total P&amp;L ${infoBtn('totalPL')}</div><div class="big ${pnl >= 0 ? 'green' : 'red'}">${pnl >= 0 ? '+' : '-'}${currency(Math.abs(pnl))}</div></div>`;
+
   const entries = Object.entries(state.portfolio);
-  grid.innerHTML = entries.length ? entries.map(([ticker, pos]) => {
+  if (!entries.length) {
+    grid.innerHTML = '<div class="empty">No positions yet. Use the market tab to build a portfolio.</div>';
+    return;
+  }
+  grid.innerHTML = entries.map(([ticker, pos]) => {
     const stock = STOCKS.find(s => s.ticker === ticker);
-    const marketValue = stock.price * pos.shares;
-    const totalPL = marketValue - pos.avgCost * pos.shares;
+    const value = pos.shares * stock.price;
+    const pl = value - pos.shares * pos.avgCost;
     return `
       <div class="portfolio-card">
-        <div class="row"><strong>${ticker}</strong><strong>${pos.shares} shares</strong></div>
-        <div class="row"><span class="small">Average cost</span><strong>${currency(pos.avgCost)}</strong></div>
-        <div class="row"><span class="small">Market value</span><strong>${currency(marketValue)}</strong></div>
-        <div class="row"><span class="small">P&amp;L</span><strong class="${totalPL >= 0 ? 'green' : 'red'}">${(totalPL >= 0 ? '+' : '-') + currency(Math.abs(totalPL))}</strong></div>
+        <div class="row"><strong>${stock.ticker}</strong><span class="small">${stock.name}</span></div>
+        <div class="row"><span class="small">Shares</span><strong>${pos.shares}</strong></div>
+        <div class="row"><span class="small label-row">Avg cost ${infoBtn('avgCost')}</span><strong>${currency(pos.avgCost)}</strong></div>
+        <div class="row"><span class="small label-row">Market value ${infoBtn('marketValue')}</span><strong>${currency(value)}</strong></div>
+        <div class="row"><span class="small label-row">Unrealized P&amp;L ${infoBtn('unrealizedPL')}</span><strong class="${pl >= 0 ? 'green' : 'red'}">${pl >= 0 ? '+' : '-'}${currency(Math.abs(pl))}</strong></div>
+        <div class="actions" style="margin-top:12px;">
+          <button class="btn btn-buy" onclick="openTrade('${ticker}','buy')">Add</button>
+          <button class="btn btn-sell" onclick="openTrade('${ticker}','sell')">Trim</button>
+          <button class="btn btn-ghost" onclick="toggleWatchlist('${ticker}')">Watch</button>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function renderOrders() {
+  const grid = $('pendingGrid');
+  if (!state.pendingOrders.length) {
+    grid.innerHTML = '<div class="empty">No pending orders. Place a limit order from any stock card.</div>';
+    return;
+  }
+  grid.innerHTML = state.pendingOrders.map(order => `
+    <div class="pending-card">
+      <div class="row"><strong>${order.side.toUpperCase()} ${order.ticker}</strong><span class="history-type history-limit">LIMIT</span></div>
+      <div class="row"><span class="small">Target</span><strong>${currency(order.limitPrice)}</strong></div>
+      <div class="row"><span class="small">Shares</span><strong>${order.qty}</strong></div>
+      <div class="row"><span class="small">Placed</span><strong>Day ${order.dayPlaced}</strong></div>
+      <div class="actions" style="margin-top:12px;grid-template-columns:1fr;">
+        <button class="btn btn-ghost" onclick="cancelOrder('${order.id}')">Cancel order</button>
       </div>
-    `;
-  }).join('') : '<div class="empty">No positions yet. Buy a stock from the market tab.</div>';
+    </div>`).join('');
 }
 
 function renderHistory() {
-  const box = document.getElementById('historyList');
-  box.innerHTML = state.history.length ? state.history.map(item => `
+  const list = $('historyList');
+  if (!state.history.length) {
+    list.innerHTML = '<div class="empty">No activity yet. Trades and news events will appear here.</div>';
+    return;
+  }
+  list.innerHTML = state.history.map(item => `
     <div class="history-item">
-      <span class="history-type ${item.type === 'BUY' ? 'history-buy' : 'history-sell'}">${item.type}</span>
-      <span>${item.text}</span>
-    </div>
-  `).join('') : '<div class="empty">No trades yet.</div>';
+      <span class="history-type ${item.type === 'buy' ? 'history-buy' : item.type === 'sell' ? 'history-sell' : item.type === 'limit' ? 'history-limit' : 'history-event'}">${item.label}</span>
+      <div style="flex:1;">
+        <div><strong>${item.headline}</strong></div>
+        <div class="tiny">${item.detail}</div>
+      </div>
+      <div class="tiny">Day ${item.day}</div>
+    </div>`).join('');
+}
+
+function renderLessons() {
+  document.querySelectorAll('.lesson-level-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.level === lessonLevel));
+  const lessons = LESSONS.filter(lesson => lesson.level === lessonLevel);
+  const labels = {
+    beginner: 'Core foundations for first-time users',
+    intermediate: 'Portfolio skills and market interpretation',
+    pro: 'Strategy, regimes, and decision process'
+  };
+  const titleMap = {
+    beginner: 'Beginner topics',
+    intermediate: 'Intermediate',
+    pro: 'Pro'
+  };
+
+  const lessonMarkup = lessons.map(lesson => {
+    const isOpen = selectedLessonTitle === lesson.title;
+    return `
+      <div class="lesson-card" onclick="openLesson('${lesson.title.replace(/'/g, "\'")}')">
+        <div class="lesson-meta">
+          <div class="lesson-tag">${lesson.level}</div>
+          <div class="lesson-arrow">${isOpen ? '↓' : '→'}</div>
+        </div>
+        <h3>${lesson.title}</h3>
+        <div class="small">${lesson.intro}</div>
+      </div>
+      ${isOpen ? `
+      <div class="lesson-detail open">
+        <div class="lesson-card">
+          <div class="lesson-meta">
+            <div class="lesson-tag">${lesson.level}</div>
+            <div class="lesson-badge">Quick lesson</div>
+          </div>
+          <h3>${lesson.title}</h3>
+          <div class="small">${lesson.intro}</div>
+          <div class="small" style="margin-top:10px;line-height:1.7;">${lesson.body}</div>
+          <div class="quiz">
+            <div><strong>Quick check:</strong> ${lesson.quiz.q}</div>
+            ${lesson.quiz.opts.map((opt, idx) => `<button class="btn btn-ghost" onclick="event.stopPropagation(); answerQuiz(this, ${idx}, ${lesson.quiz.answer})">${String.fromCharCode(65 + idx)}. ${opt}</button>`).join('')}
+            <div class="small quiz-feedback"></div>
+          </div>
+        </div>
+      </div>` : ''}
+    `;
+  }).join('');
+
+  $('lessonList').innerHTML = `
+    <div class="lesson-section">
+      <div class="lesson-section-head">
+        <h3>${titleMap[lessonLevel]}</h3>
+        <div class="lesson-badge">${lessons.length} lessons</div>
+      </div>
+      <div class="small">${labels[lessonLevel]}</div>
+      ${lessonMarkup}
+    </div>`;
+
+  $('lessonDetail').classList.remove('open');
+  $('lessonDetail').innerHTML = '';
+}
+
+function openLesson(title) {
+  selectedLessonTitle = selectedLessonTitle === title ? null : title;
+  renderLessons();
+}
+
+function answerQuiz(btn, choice, answer) {
+  const parent = btn.closest('.quiz');
+  parent.querySelectorAll('button').forEach(b => b.disabled = true);
+  parent.querySelectorAll('button')[answer].style.borderColor = 'rgba(92,224,160,.45)';
+  parent.querySelectorAll('button')[answer].style.color = 'var(--green)';
+  if (choice !== answer) {
+    btn.style.borderColor = 'rgba(255,125,125,.45)';
+    btn.style.color = 'var(--red)';
+  }
+  const feedback = parent.querySelector('.quiz-feedback');
+  if (feedback) feedback.textContent = choice === answer ? 'Correct — nice read of the concept.' : 'Not quite — revisit the idea above and compare it to the correct answer.';
+}
+
+function toggleWatchlist(ticker) {
+  if (state.watchlist.includes(ticker)) {
+    state.watchlist = state.watchlist.filter(t => t !== ticker);
+    showToast(`${ticker} removed from watchlist.`);
+  } else {
+    state.watchlist.push(ticker);
+    showToast(`${ticker} added to watchlist.`);
+  }
+  renderSidebar();
+  renderMarket();
+}
+
+function openTrade(ticker, side) {
+  const stock = STOCKS.find(s => s.ticker === ticker);
+  state.currentTrade = { ticker, side };
+  const maxQty = side === 'buy' ? Math.max(1, Math.floor(state.cash / stock.price)) : Math.max(1, state.portfolio[ticker]?.shares || 1);
+  $('tradeOverlay').classList.add('open');
+  $('modalMode').textContent = side === 'buy' ? 'Buy ticket' : 'Sell ticket';
+  $('modalTitle').textContent = `${side === 'buy' ? 'Buy' : 'Sell'} ${stock.name}`;
+  $('modalSubtitle').textContent = `Current price ${currency(stock.price)} · ${stock.ticker}`;
+  $('qtySlider').max = maxQty;
+  $('qtySlider').value = 1;
+  $('qtyLabel').textContent = `(max ${maxQty})`;
+  $('orderType').value = 'market';
+  $('limitPriceField').style.display = 'none';
+  $('limitPriceInput').value = stock.price.toFixed(2);
+  $('confirmTradeBtn').textContent = side === 'buy' ? 'Confirm buy' : 'Confirm sell';
+  $('confirmTradeBtn').className = 'btn ' + (side === 'buy' ? 'btn-buy' : 'btn-sell');
+  $('watchToggleBtn').textContent = state.watchlist.includes(ticker) ? 'Remove from watchlist' : 'Add to watchlist';
+  updateTradeSummary();
+}
+
+function closeModal() {
+  $('tradeOverlay').classList.remove('open');
+  state.currentTrade = null;
+}
+
+function updateTradeSummary() {
+  if (!state.currentTrade) return;
+  const stock = STOCKS.find(s => s.ticker === state.currentTrade.ticker);
+  const qty = Number($('qtySlider').value);
+  const type = $('orderType').value;
+  const limit = Number($('limitPriceInput').value || stock.price);
+  $('qtyDisplay').textContent = qty;
+  $('summaryShares').textContent = qty;
+  $('summaryPrice').textContent = type === 'market' ? currency(stock.price) : currency(limit);
+  $('summaryTotal').textContent = currency((type === 'market' ? stock.price : limit) * qty);
+  $('summaryLabel').textContent = type === 'market' ? 'Estimated total' : 'Limit total';
+}
+
+function addHistory(type, headline, detail) {
+  const labelMap = { buy: 'BUY', sell: 'SELL', limit: 'LIMIT FILLED', event: 'NEWS' };
+  state.history.unshift({ type, label: labelMap[type], headline, detail, day: state.day });
+  if (state.history.length > 30) state.history.pop();
+}
+
+function executeTrade(side, stock, qty, executionPrice, metaLabel = '') {
+  const total = executionPrice * qty;
+  if (side === 'buy') {
+    if (total > state.cash) return false;
+    state.cash -= total;
+    if (!state.portfolio[stock.ticker]) state.portfolio[stock.ticker] = { shares: 0, avgCost: 0 };
+    const p = state.portfolio[stock.ticker];
+    p.avgCost = ((p.avgCost * p.shares) + total) / (p.shares + qty);
+    p.shares += qty;
+    addHistory(metaLabel === 'limit' ? 'limit' : 'buy', `${qty} ${stock.ticker} bought`, `${qty} shares at ${currency(executionPrice)}${metaLabel === 'limit' ? ' via limit order' : ''}.`);
+    return true;
+  }
+  const owned = state.portfolio[stock.ticker]?.shares || 0;
+  if (owned < qty) return false;
+  state.cash += total;
+  state.portfolio[stock.ticker].shares -= qty;
+  if (state.portfolio[stock.ticker].shares === 0) delete state.portfolio[stock.ticker];
+  addHistory(metaLabel === 'limit' ? 'limit' : 'sell', `${qty} ${stock.ticker} sold`, `${qty} shares at ${currency(executionPrice)}${metaLabel === 'limit' ? ' via limit order' : ''}.`);
+  return true;
+}
+
+function confirmTrade() {
+  if (!state.currentTrade) return;
+  const stock = STOCKS.find(s => s.ticker === state.currentTrade.ticker);
+  const side = state.currentTrade.side;
+  const qty = Number($('qtySlider').value);
+  const type = $('orderType').value;
+  const limitPrice = Number($('limitPriceInput').value || stock.price);
+
+  if (type === 'market') {
+    const ok = executeTrade(side, stock, qty, stock.price);
+    if (!ok) {
+      showToast(side === 'buy' ? 'Not enough cash for this market order.' : 'Not enough shares to sell.');
+      return;
+    }
+    showToast(`${side === 'buy' ? 'Bought' : 'Sold'} ${qty} ${stock.ticker} at ${currency(stock.price)}.`);
+  } else {
+    const isValid = limitPrice > 0;
+    if (!isValid) {
+      showToast('Enter a valid limit price.');
+      return;
+    }
+    if (side === 'buy' && limitPrice * qty > state.cash) {
+      showToast('That buy limit would require more cash than you have.');
+      return;
+    }
+    if (side === 'sell' && (state.portfolio[stock.ticker]?.shares || 0) < qty) {
+      showToast('You do not own enough shares for that sell limit.');
+      return;
+    }
+    state.pendingOrders.unshift({
+      id: Math.random().toString(36).slice(2, 9),
+      ticker: stock.ticker,
+      side,
+      qty,
+      limitPrice,
+      dayPlaced: state.day
+    });
+    showToast(`Placed ${side} limit for ${qty} ${stock.ticker} at ${currency(limitPrice)}.`);
+  }
+  closeModal();
+  refreshAll();
+}
+
+function cancelOrder(id) {
+  state.pendingOrders = state.pendingOrders.filter(order => order.id !== id);
+  showToast('Order cancelled.');
+  refreshAll();
+}
+
+function maybeShiftRegime() {
+  if (state.day % 10 !== 0) return;
+  const next = MARKET_REGIMES[Math.floor(Math.random() * MARKET_REGIMES.length)];
+  state.regime = next;
+  state.sentiment = clamp(next.sentimentBias + Math.round((Math.random() - 0.5) * 12), -40, 40);
+  state.headline = `${next.label} takes over: ${next.description}`;
+  addHistory('event', 'Market regime changed', `${next.label} now defines the broader backdrop.`);
+}
+
+function maybeGenerateCompanyEvent() {
+  if (Math.random() > 0.34) return;
+  const stock = STOCKS[Math.floor(Math.random() * STOCKS.length)];
+  const positive = Math.random() > 0.44;
+  const magnitude = positive ? 1 : -1;
+  stock.eventBias = magnitude * (0.014 + Math.random() * 0.018);
+  stock.eventTimer = 4 + Math.floor(Math.random() * 3);
+  const line = stock.news[Math.floor(Math.random() * stock.news.length)];
+  state.sentiment = clamp(state.sentiment + Math.round(magnitude * (4 + Math.random() * 8)), -40, 40);
+  state.headline = `${stock.ticker} ${line}. ${positive ? 'Investors respond positively.' : 'The market reacts cautiously.'}`;
+  addHistory('event', `${stock.ticker} headline`, state.headline);
+}
+
+function updateStockPrices() {
+  STOCKS.forEach(stock => {
+    stock.prevPrice = stock.price;
+    if (stock.eventTimer > 0) stock.eventTimer -= 1;
+    if (stock.eventTimer <= 0) stock.eventBias *= 0.4;
+
+    const sectorAdjustment = (state.regime.key === 'bear' && (stock.sector === 'Consumer Staples' || stock.sector === 'Healthcare')) ? 0.006 : 0;
+    const speculativePenalty = (state.regime.key === 'bear' && (stock.beta > 1.15)) ? -0.009 : 0;
+    const rotationBoost = (state.regime.key === 'rotation' && Math.random() > 0.7) ? (Math.random() - 0.5) * 0.03 : 0;
+    const randomShock = (Math.random() - 0.5) * stock.volatility * state.regime.volatilityBoost;
+    const drift = state.regime.drift * stock.beta + stock.eventBias + sectorAdjustment + speculativePenalty + rotationBoost + state.sentiment / 6000;
+    const changePct = drift + randomShock;
+    stock.price = Math.max(8, stock.price * (1 + changePct));
+    stock.history.push(stock.price);
+    if (stock.history.length > 40) stock.history.shift();
+    stock.momentum = ((stock.price / stock.history[Math.max(0, stock.history.length - 6)]) - 1) * 100;
+  });
+}
+
+function processPendingOrders() {
+  const remaining = [];
+  state.pendingOrders.forEach(order => {
+    const stock = STOCKS.find(s => s.ticker === order.ticker);
+    const shouldFill = (order.side === 'buy' && stock.price <= order.limitPrice) || (order.side === 'sell' && stock.price >= order.limitPrice);
+    if (!shouldFill) {
+      remaining.push(order);
+      return;
+    }
+    const ok = executeTrade(order.side, stock, order.qty, order.limitPrice, 'limit');
+    if (ok) {
+      showToast(`Limit filled: ${order.side} ${order.qty} ${order.ticker} at ${currency(order.limitPrice)}.`);
+    } else {
+      remaining.push(order);
+    }
+  });
+  state.pendingOrders = remaining;
+}
+
+function simulateDay() {
+  state.day += 1;
+  state.cycle = state.day % 2 === 0 ? 'Midday' : 'Open';
+  maybeShiftRegime();
+  maybeGenerateCompanyEvent();
+  updateStockPrices();
+  processPendingOrders();
+  refreshAll();
 }
 
 function refreshAll() {
-  updateStats();
-  setCoachMessage();
-  renderWatchlist();
+  renderTopStats();
+  renderSidebar();
   renderMarket();
   renderPortfolio();
+  renderOrders();
   renderHistory();
 }
 
+function restartInterval() {
+  if (state.intervalId) clearInterval(state.intervalId);
+  if (!state.simPaused) {
+    state.intervalId = setInterval(simulateDay, state.speed);
+  }
+}
+
+function showToast(message) {
+  const toast = $('toast');
+  toast.textContent = message;
+  toast.style.display = 'block';
+  clearTimeout(showToast.timer);
+  showToast.timer = setTimeout(() => { toast.style.display = 'none'; }, 2400);
+}
+
+$('qtySlider').addEventListener('input', updateTradeSummary);
+$('limitPriceInput').addEventListener('input', updateTradeSummary);
+$('orderType').addEventListener('change', () => {
+  const stock = state.currentTrade ? STOCKS.find(s => s.ticker === state.currentTrade.ticker) : null;
+  $('limitPriceField').style.display = $('orderType').value === 'limit' ? 'block' : 'none';
+  if (stock) $('limitPriceInput').value = stock.price.toFixed(2);
+  updateTradeSummary();
+});
+$('confirmTradeBtn').addEventListener('click', confirmTrade);
+$('closeModalBtn').addEventListener('click', closeModal);
+
+$('tradeOverlay').addEventListener('click', (e) => {
+  if (e.target === $('tradeOverlay')) closeModal();
+});
+$('tutorialOverlay').addEventListener('click', (e) => {
+  if (e.target === $('tutorialOverlay')) finishTutorial(true);
+});
+$('infoOverlay').addEventListener('click', (e) => {
+  if (e.target === $('infoOverlay')) closeInfo();
+});
+$('closeInfoBtn').addEventListener('click', closeInfo);
+$('watchToggleBtn').addEventListener('click', () => {
+  if (!state.currentTrade) return;
+  toggleWatchlist(state.currentTrade.ticker);
+  $('watchToggleBtn').textContent = state.watchlist.includes(state.currentTrade.ticker) ? 'Remove from watchlist' : 'Add to watchlist';
+});
+$('toggleSimBtn').addEventListener('click', () => {
+  state.simPaused = !state.simPaused;
+  restartInterval();
+  renderSidebar();
+});
+$('stepBtn').addEventListener('click', () => {
+  simulateDay();
+});
+$('speedSelect').addEventListener('change', (e) => {
+  state.speed = Number(e.target.value);
+  restartInterval();
+});
+
 document.querySelectorAll('.tab').forEach(tab => {
   tab.addEventListener('click', () => {
-    document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t === tab));
-    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-    document.getElementById('panel-' + tab.dataset.tab).classList.add('active');
+    activateTab(tab.dataset.tab);
   });
 });
 
+document.querySelectorAll('.lesson-level-btn[data-level]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    lessonLevel = btn.dataset.level;
+    selectedLessonTitle = null;
+    renderLessons();
+  });
+});
+
+$('restartTutorialBtn').addEventListener('click', () => {
+  startTutorial(true);
+  showToast('Tutorial restarted.');
+});
+
+const tourBtn = $('tourBtn');
+if (tourBtn) {
+  tourBtn.addEventListener('click', () => {
+    startTutorial(true);
+    showToast('Tour opened.');
+  });
+}
+
+$('tutorialNextBtn').addEventListener('click', nextTutorialStep);
+$('tutorialBackBtn').addEventListener('click', previousTutorialStep);
+$('tutorialSkipBtn').addEventListener('click', () => {
+  finishTutorial(true);
+  showToast('Tutorial skipped. You can explore freely now.');
+});
+window.addEventListener('resize', () => {
+  renderMarket();
+  if (tutorial.active) syncTutorialSpotlight();
+});
+window.addEventListener('load', () => {
+  if (tutorial.active) syncTutorialSpotlight();
+});
+window.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    if ($('infoOverlay').classList.contains('open')) closeInfo();
+    if (tutorial.active) finishTutorial(true);
+    return;
+  }
+  if (!tutorial.active) return;
+  if (e.key === 'ArrowRight' || e.key === 'Enter') nextTutorialStep();
+  if (e.key === 'ArrowLeft') previousTutorialStep();
+});
+
+
+renderLessons();
 refreshAll();
+restartInterval();
+setTimeout(() => startTutorial(false), 180);
 </script>
 </body>
 </html>
