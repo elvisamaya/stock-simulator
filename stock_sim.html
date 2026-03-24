@@ -942,6 +942,21 @@
     line-height: 1.6;
   }
 
+
+  #dayDisplay {
+    font-size: 1.25rem;
+    font-weight: 900;
+    color: var(--gold);
+    letter-spacing: 0.04em;
+  }
+
+
+  .day-pill {
+    border-color: rgba(255, 209, 102, 0.35);
+    background: rgba(255, 209, 102, 0.08);
+    box-shadow: 0 0 0 1px rgba(255,209,102,0.12) inset;
+  }
+
 </style>
 </head>
 <body>
@@ -954,7 +969,7 @@
           A teaching-first stock simulator built to help younger investors learn market basics, explore strategy, and practice trading in a more thoughtful interface.
         </p>
         <div class="hero-strip">
-          <div class="pill">Session <strong id="dayDisplay">Day 1</strong></div>
+          <div class="pill day-pill">Session <strong id="dayDisplay">Day 1</strong></div>
           <div class="pill">Regime <strong id="regimeDisplay">Balanced</strong></div>
           <div class="pill">Sentiment <strong id="sentimentText">0</strong></div>
           <div class="pill">Unfilled Orders <strong id="pendingCountTop">0</strong></div>
