@@ -943,13 +943,14 @@
         <div class="eyebrow">Simulation Studio</div>
         <h1>Chrimata</h1>
         <p>
-          A strategy-first stock simulator with market regimes, watchlists,
-          and a cleaner editorial interface.
+          A strategy-first stock simulator with basic live trading, portfolio tracking,
+          watchlists, and a cleaner editorial interface.
         </p>
         <div class="hero-strip">
           <div class="pill">Session <strong id="dayDisplay">Day 1</strong></div>
           <div class="pill">Regime <strong id="regimeDisplay">Balanced</strong></div>
           <div class="pill">Sentiment <strong id="sentimentText">0</strong></div>
+          <div class="pill">Unfilled Orders <strong id="pendingCountTop">0</strong></div>
         </div>
       </section>
 
@@ -976,7 +977,7 @@
         <section class="panel glass active" id="panel-market">
           <div class="section-title">
             <h2>Market board</h2>
-            <span>Static UI pass with stock cards and tabs.</span>
+            <span>Market rendering, buy/sell actions, and watchlist support are working.</span>
           </div>
           <div class="market-grid" id="marketGrid"></div>
         </section>
@@ -984,24 +985,25 @@
         <section class="panel glass" id="panel-portfolio">
           <div class="section-title">
             <h2>Portfolio</h2>
-            <span>Placeholder panel for positions.</span>
+            <span>Basic portfolio accounting and unrealized P&amp;L.</span>
           </div>
-          <div class="empty">Portfolio logic not wired yet.</div>
+          <div class="summary-grid" id="summaryGrid"></div>
+          <div class="portfolio-grid" id="portfolioGrid"></div>
         </section>
 
         <section class="panel glass" id="panel-history">
           <div class="section-title">
             <h2>Activity feed</h2>
-            <span>Event log placeholder.</span>
+            <span>Buys and sells are now logged here.</span>
           </div>
-          <div class="empty">History will appear here.</div>
+          <div class="history-list" id="historyList"></div>
         </section>
       </main>
 
       <aside class="sidebar">
         <section class="sidebar-card glass">
           <div class="sidebar-label">Market regime</div>
-          <h3>Balanced</h3>
+          <h3 id="regimeTitle">Balanced</h3>
           <div class="small">A steady market with moderate volatility and mixed leadership.</div>
         </section>
 
@@ -1011,61 +1013,201 @@
             <div class="list-item">No stocks on your watchlist yet.</div>
           </div>
         </section>
+
+        <section class="sidebar-card glass">
+          <div class="sidebar-label">Coach</div>
+          <div class="small" id="coachBox">Start by building two or three positions in different sectors instead of putting everything into one trade.</div>
+        </section>
       </aside>
     </div>
 
-    <div class="footer-note">Reconstructed milestone 2 of 5.</div>
+    <div class="footer-note">Reconstructed milestone 3 of 5.</div>
   </div>
 
 <script>
 const STOCKS = [
-  { ticker: 'ALBA', name: 'Alba Devices', sector: 'Consumer Tech', desc: 'Design-led hardware and personal devices.', price: 132, logo: 'A', palette: ['#78a6ff','#4254f5'] },
-  { ticker: 'VRTX', name: 'Vertex Grid', sector: 'Infrastructure', desc: 'Cloud logistics and industrial software.', price: 88, logo: 'V', palette: ['#72e7f7','#117ea1'] },
-  { ticker: 'MIRA', name: 'Mirador Media', sector: 'Entertainment', desc: 'Streaming, gaming, and interactive stories.', price: 56, logo: 'M', palette: ['#c49dff','#7c4dff'] },
-  { ticker: 'SOLA', name: 'Solara Renewables', sector: 'Energy', desc: 'Grid-scale storage and solar hardware.', price: 104, logo: 'S', palette: ['#ffd166','#e38b00'] }
+  { ticker: 'ALBA', name: 'Alba Devices', sector: 'Consumer Tech', desc: 'Design-led hardware and personal devices.', price: 132, prevPrice: 132, beta: 1.1, dividend: 0.7, momentum: 0.9, logo: 'A', palette: ['#78a6ff','#4254f5'] },
+  { ticker: 'VRTX', name: 'Vertex Grid', sector: 'Infrastructure', desc: 'Cloud logistics and industrial software.', price: 88, prevPrice: 88, beta: 0.9, dividend: 1.4, momentum: 0.3, logo: 'V', palette: ['#72e7f7','#117ea1'] },
+  { ticker: 'MIRA', name: 'Mirador Media', sector: 'Entertainment', desc: 'Streaming, gaming, and interactive stories.', price: 56, prevPrice: 56, beta: 1.25, dividend: 0.0, momentum: 1.6, logo: 'M', palette: ['#c49dff','#7c4dff'] },
+  { ticker: 'SOLA', name: 'Solara Renewables', sector: 'Energy', desc: 'Grid-scale storage and solar hardware.', price: 104, prevPrice: 104, beta: 1.15, dividend: 0.4, momentum: -0.4, logo: 'S', palette: ['#ffd166','#e38b00'] },
+  { ticker: 'HAVN', name: 'Haven Foods', sector: 'Consumer Staples', desc: 'Everyday packaged foods with stable cash flow.', price: 63, prevPrice: 63, beta: 0.7, dividend: 2.2, momentum: 0.1, logo: 'H', palette: ['#5ce0a0','#128f67'] }
 ];
 
-const watchlist = [];
+const state = {
+  cash: 25000,
+  portfolio: {},
+  history: [],
+  watchlist: []
+};
 
-function currency(v) {
-  return '$' + Number(v).toFixed(2);
+function currency(v) { return '$' + Number(v).toFixed(2); }
+function percent(v) { return (v >= 0 ? '+' : '') + v.toFixed(1) + '%'; }
+
+function getPortfolioValue() {
+  return Object.entries(state.portfolio).reduce((sum, [ticker, pos]) => {
+    const stock = STOCKS.find(s => s.ticker === ticker);
+    return sum + pos.shares * stock.price;
+  }, 0);
+}
+
+function getCostBasis() {
+  return Object.values(state.portfolio).reduce((sum, pos) => sum + pos.shares * pos.avgCost, 0);
+}
+
+function getUnrealizedPL() {
+  return getPortfolioValue() - getCostBasis();
+}
+
+function getNetWorth() {
+  return state.cash + getPortfolioValue();
+}
+
+function getRiskScore() {
+  const count = Object.keys(state.portfolio).length;
+  if (!count) return 0;
+  return Math.min(100, Math.round(60 / count + count * 8));
+}
+
+function updateStats() {
+  document.getElementById('cashDisplay').textContent = currency(state.cash);
+  document.getElementById('netWorthDisplay').textContent = currency(getNetWorth());
+  const pnl = getUnrealizedPL();
+  const pnlEl = document.getElementById('pnlDisplay');
+  pnlEl.textContent = (pnl >= 0 ? '+' : '-') + currency(Math.abs(pnl));
+  pnlEl.className = 'value ' + (pnl >= 0 ? 'green' : 'red');
+  document.getElementById('riskDisplay').textContent = getRiskScore() + ' / 100';
+}
+
+function setCoachMessage() {
+  const positions = Object.keys(state.portfolio).length;
+  let msg = 'Start by building two or three positions in different sectors instead of putting everything into one trade.';
+  if (positions >= 2) msg = 'Nice start. Your positions are beginning to diversify the account.';
+  if (positions >= 4) msg = 'The portfolio is spreading out well. Start watching average cost and P&L.';
+  document.getElementById('coachBox').textContent = msg;
+}
+
+function toggleWatchlist(ticker) {
+  const idx = state.watchlist.indexOf(ticker);
+  if (idx === -1) state.watchlist.push(ticker);
+  else state.watchlist.splice(idx, 1);
+  renderWatchlist();
+  renderMarket();
+}
+
+function renderWatchlist() {
+  const box = document.getElementById('watchlistBox');
+  box.innerHTML = state.watchlist.length
+    ? state.watchlist.map(t => `<div class="list-item"><strong>${t}</strong></div>`).join('')
+    : '<div class="list-item">No stocks on your watchlist yet.</div>';
+}
+
+function buyStock(ticker) {
+  const stock = STOCKS.find(s => s.ticker === ticker);
+  if (state.cash < stock.price) return alert('Not enough cash for this trade.');
+  state.cash -= stock.price;
+  if (!state.portfolio[ticker]) state.portfolio[ticker] = { shares: 0, avgCost: 0 };
+  const pos = state.portfolio[ticker];
+  pos.avgCost = ((pos.avgCost * pos.shares) + stock.price) / (pos.shares + 1);
+  pos.shares += 1;
+  state.history.unshift({ type: 'BUY', text: `Bought 1 share of ${ticker} at ${currency(stock.price)}.` });
+  refreshAll();
+}
+
+function sellStock(ticker) {
+  const stock = STOCKS.find(s => s.ticker === ticker);
+  const pos = state.portfolio[ticker];
+  if (!pos || pos.shares < 1) return;
+  pos.shares -= 1;
+  state.cash += stock.price;
+  state.history.unshift({ type: 'SELL', text: `Sold 1 share of ${ticker} at ${currency(stock.price)}.` });
+  if (pos.shares === 0) delete state.portfolio[ticker];
+  refreshAll();
 }
 
 function renderMarket() {
   const grid = document.getElementById('marketGrid');
-  grid.innerHTML = STOCKS.map(stock => `
-    <article class="stock-card">
-      <div class="stock-top">
-        <div class="logo-mark" style="background: linear-gradient(135deg, ${stock.palette[0]}, ${stock.palette[1]});">${stock.logo}</div>
-        <div class="stock-meta">
-          <div class="ticker">${stock.ticker}</div>
-          <div class="name">${stock.name}</div>
-          <div class="sector">${stock.sector}</div>
+  grid.innerHTML = STOCKS.map(stock => {
+    const change = stock.price - stock.prevPrice;
+    const pct = (change / stock.prevPrice) * 100;
+    const owned = state.portfolio[stock.ticker]?.shares || 0;
+    const watching = state.watchlist.includes(stock.ticker);
+    return `
+      <article class="stock-card">
+        ${owned ? `<div class="owned-tag">${owned} shares</div>` : ''}
+        ${watching ? `<div class="watch-tag">watching</div>` : ''}
+        <div class="stock-top">
+          <div class="logo-mark" style="background: linear-gradient(135deg, ${stock.palette[0]}, ${stock.palette[1]});">${stock.logo}</div>
+          <div class="stock-meta">
+            <div class="ticker">${stock.ticker}</div>
+            <div class="name">${stock.name}</div>
+            <div class="sector">${stock.sector}</div>
+          </div>
         </div>
-      </div>
-      <div class="price-row">
-        <div class="price">${currency(stock.price)}</div>
-        <div class="change green">▲ $0.00 · +0.0%</div>
-      </div>
-      <div class="stock-desc">${stock.desc}</div>
-      <div class="actions">
-        <button class="btn btn-buy" type="button">Buy</button>
-        <button class="btn btn-sell" type="button">Sell</button>
-        <button class="btn btn-ghost" type="button" onclick="toggleWatchlist('${stock.ticker}')">${watchlist.includes(stock.ticker) ? '★' : '☆'}</button>
-      </div>
-    </article>
-  `).join('');
+        <div class="price-row">
+          <div class="price">${currency(stock.price)}</div>
+          <div class="change ${change >= 0 ? 'green' : 'red'}">${change >= 0 ? '▲' : '▼'} ${currency(Math.abs(change))} · ${percent(pct)}</div>
+        </div>
+        <div class="stock-desc">${stock.desc}</div>
+        <div class="metrics">
+          <div class="metric"><div class="k">Beta</div><div class="v">${stock.beta.toFixed(2)}</div></div>
+          <div class="metric"><div class="k">Yield</div><div class="v">${stock.dividend.toFixed(1)}%</div></div>
+          <div class="metric"><div class="k">Momentum</div><div class="v ${stock.momentum >= 0 ? 'green' : 'red'}">${stock.momentum >= 0 ? '+' : ''}${stock.momentum.toFixed(1)}</div></div>
+        </div>
+        <div class="actions">
+          <button class="btn btn-buy" onclick="buyStock('${stock.ticker}')">Buy</button>
+          <button class="btn btn-sell" onclick="sellStock('${stock.ticker}')" ${owned ? '' : 'disabled style="opacity:.45;cursor:not-allowed;"'}>Sell</button>
+          <button class="btn btn-ghost" onclick="toggleWatchlist('${stock.ticker}')">${watching ? '★' : '☆'}</button>
+        </div>
+      </article>
+    `;
+  }).join('');
 }
 
-function toggleWatchlist(ticker) {
-  const index = watchlist.indexOf(ticker);
-  if (index === -1) watchlist.push(ticker);
-  else watchlist.splice(index, 1);
-  const box = document.getElementById('watchlistBox');
-  box.innerHTML = watchlist.length
-    ? watchlist.map(t => `<div class="list-item"><strong>${t}</strong></div>`).join('')
-    : '<div class="list-item">No stocks on your watchlist yet.</div>';
+function renderPortfolio() {
+  const summary = document.getElementById('summaryGrid');
+  const grid = document.getElementById('portfolioGrid');
+  const value = getPortfolioValue();
+  const cost = getCostBasis();
+  const pnl = value - cost;
+  summary.innerHTML = `
+    <div class="tile"><div class="label">Stock Value</div><div class="big">${currency(value)}</div></div>
+    <div class="tile"><div class="label">Positions</div><div class="big">${Object.keys(state.portfolio).length}</div></div>
+    <div class="tile"><div class="label">Diversification</div><div class="big">${Math.max(0, Object.keys(state.portfolio).length * 25)} / 100</div></div>
+    <div class="tile"><div class="label">Total P&amp;L</div><div class="big ${pnl >= 0 ? 'green' : 'red'}">${(pnl >= 0 ? '+' : '-') + currency(Math.abs(pnl))}</div></div>
+  `;
+  const entries = Object.entries(state.portfolio);
+  grid.innerHTML = entries.length ? entries.map(([ticker, pos]) => {
+    const stock = STOCKS.find(s => s.ticker === ticker);
+    const marketValue = stock.price * pos.shares;
+    const totalPL = marketValue - pos.avgCost * pos.shares;
+    return `
+      <div class="portfolio-card">
+        <div class="row"><strong>${ticker}</strong><strong>${pos.shares} shares</strong></div>
+        <div class="row"><span class="small">Average cost</span><strong>${currency(pos.avgCost)}</strong></div>
+        <div class="row"><span class="small">Market value</span><strong>${currency(marketValue)}</strong></div>
+        <div class="row"><span class="small">P&amp;L</span><strong class="${totalPL >= 0 ? 'green' : 'red'}">${(totalPL >= 0 ? '+' : '-') + currency(Math.abs(totalPL))}</strong></div>
+      </div>
+    `;
+  }).join('') : '<div class="empty">No positions yet. Buy a stock from the market tab.</div>';
+}
+
+function renderHistory() {
+  const box = document.getElementById('historyList');
+  box.innerHTML = state.history.length ? state.history.map(item => `
+    <div class="history-item">
+      <span class="history-type ${item.type === 'BUY' ? 'history-buy' : 'history-sell'}">${item.type}</span>
+      <span>${item.text}</span>
+    </div>
+  `).join('') : '<div class="empty">No trades yet.</div>';
+}
+
+function refreshAll() {
+  updateStats();
+  setCoachMessage();
+  renderWatchlist();
   renderMarket();
+  renderPortfolio();
+  renderHistory();
 }
 
 document.querySelectorAll('.tab').forEach(tab => {
@@ -1076,7 +1218,7 @@ document.querySelectorAll('.tab').forEach(tab => {
   });
 });
 
-renderMarket();
+refreshAll();
 </script>
 </body>
 </html>
