@@ -942,24 +942,24 @@
       <section class="hero glass">
         <div class="eyebrow">Simulation Studio</div>
         <h1>Chrimata</h1>
-        <p>A strategy-first stock simulator prototype with a cleaner editorial interface.</p>
+        <p>
+          A strategy-first stock simulator with market regimes, watchlists,
+          and a cleaner editorial interface.
+        </p>
         <div class="hero-strip">
-          <div class="pill">Session <strong>Day 1</strong></div>
-          <div class="pill">Regime <strong>Balanced</strong></div>
+          <div class="pill">Session <strong id="dayDisplay">Day 1</strong></div>
+          <div class="pill">Regime <strong id="regimeDisplay">Balanced</strong></div>
+          <div class="pill">Sentiment <strong id="sentimentText">0</strong></div>
         </div>
       </section>
 
       <section class="stats-wrap">
         <div class="stat-card glass">
           <div class="stat-grid">
-            <div class="stat">
-              <div class="label">Cash</div>
-              <div class="value green">$25,000.00</div>
-            </div>
-            <div class="stat">
-              <div class="label">Net Worth</div>
-              <div class="value blue">$25,000.00</div>
-            </div>
+            <div class="stat"><div class="label">Cash</div><div class="value green" id="cashDisplay">$25,000.00</div></div>
+            <div class="stat"><div class="label">Net Worth</div><div class="value blue" id="netWorthDisplay">$25,000.00</div></div>
+            <div class="stat"><div class="label">Unrealized P&amp;L</div><div class="value" id="pnlDisplay">$0.00</div></div>
+            <div class="stat"><div class="label">Risk Score</div><div class="value gold" id="riskDisplay">0 / 100</div></div>
           </div>
         </div>
       </section>
@@ -968,44 +968,115 @@
     <div class="layout">
       <main class="main-panel">
         <div class="tabs">
-          <button class="tab active">Market</button>
-          <button class="tab">Portfolio</button>
+          <button class="tab active" data-tab="market">Market</button>
+          <button class="tab" data-tab="portfolio">Portfolio</button>
+          <button class="tab" data-tab="history">History</button>
         </div>
 
-        <section class="panel glass active">
+        <section class="panel glass active" id="panel-market">
           <div class="section-title">
             <h2>Market board</h2>
-            <span>Early layout pass</span>
+            <span>Static UI pass with stock cards and tabs.</span>
           </div>
-          <div class="market-grid">
-            <article class="stock-card">
-              <div class="stock-top">
-                <div class="logo-mark" style="background: linear-gradient(135deg, #78a6ff, #4254f5);">A</div>
-                <div class="stock-meta">
-                  <div class="ticker">ALBA</div>
-                  <div class="name">Alba Devices</div>
-                  <div class="sector">Consumer Tech</div>
-                </div>
-              </div>
-              <div class="price-row">
-                <div class="price">$132.00</div>
-                <div class="change green">▲ $0.00 · +0.0%</div>
-              </div>
-              <div class="stock-desc">Design-led hardware and personal devices.</div>
-            </article>
+          <div class="market-grid" id="marketGrid"></div>
+        </section>
+
+        <section class="panel glass" id="panel-portfolio">
+          <div class="section-title">
+            <h2>Portfolio</h2>
+            <span>Placeholder panel for positions.</span>
           </div>
+          <div class="empty">Portfolio logic not wired yet.</div>
+        </section>
+
+        <section class="panel glass" id="panel-history">
+          <div class="section-title">
+            <h2>Activity feed</h2>
+            <span>Event log placeholder.</span>
+          </div>
+          <div class="empty">History will appear here.</div>
         </section>
       </main>
 
       <aside class="sidebar">
         <section class="sidebar-card glass">
-          <div class="sidebar-label">Coach</div>
-          <div class="small">Start by building the market UI and high-level layout.</div>
+          <div class="sidebar-label">Market regime</div>
+          <h3>Balanced</h3>
+          <div class="small">A steady market with moderate volatility and mixed leadership.</div>
+        </section>
+
+        <section class="sidebar-card glass">
+          <div class="sidebar-label">Watchlist</div>
+          <div class="list" id="watchlistBox">
+            <div class="list-item">No stocks on your watchlist yet.</div>
+          </div>
         </section>
       </aside>
     </div>
 
-    <div class="footer-note">Reconstructed milestone 1 of 5.</div>
+    <div class="footer-note">Reconstructed milestone 2 of 5.</div>
   </div>
+
+<script>
+const STOCKS = [
+  { ticker: 'ALBA', name: 'Alba Devices', sector: 'Consumer Tech', desc: 'Design-led hardware and personal devices.', price: 132, logo: 'A', palette: ['#78a6ff','#4254f5'] },
+  { ticker: 'VRTX', name: 'Vertex Grid', sector: 'Infrastructure', desc: 'Cloud logistics and industrial software.', price: 88, logo: 'V', palette: ['#72e7f7','#117ea1'] },
+  { ticker: 'MIRA', name: 'Mirador Media', sector: 'Entertainment', desc: 'Streaming, gaming, and interactive stories.', price: 56, logo: 'M', palette: ['#c49dff','#7c4dff'] },
+  { ticker: 'SOLA', name: 'Solara Renewables', sector: 'Energy', desc: 'Grid-scale storage and solar hardware.', price: 104, logo: 'S', palette: ['#ffd166','#e38b00'] }
+];
+
+const watchlist = [];
+
+function currency(v) {
+  return '$' + Number(v).toFixed(2);
+}
+
+function renderMarket() {
+  const grid = document.getElementById('marketGrid');
+  grid.innerHTML = STOCKS.map(stock => `
+    <article class="stock-card">
+      <div class="stock-top">
+        <div class="logo-mark" style="background: linear-gradient(135deg, ${stock.palette[0]}, ${stock.palette[1]});">${stock.logo}</div>
+        <div class="stock-meta">
+          <div class="ticker">${stock.ticker}</div>
+          <div class="name">${stock.name}</div>
+          <div class="sector">${stock.sector}</div>
+        </div>
+      </div>
+      <div class="price-row">
+        <div class="price">${currency(stock.price)}</div>
+        <div class="change green">▲ $0.00 · +0.0%</div>
+      </div>
+      <div class="stock-desc">${stock.desc}</div>
+      <div class="actions">
+        <button class="btn btn-buy" type="button">Buy</button>
+        <button class="btn btn-sell" type="button">Sell</button>
+        <button class="btn btn-ghost" type="button" onclick="toggleWatchlist('${stock.ticker}')">${watchlist.includes(stock.ticker) ? '★' : '☆'}</button>
+      </div>
+    </article>
+  `).join('');
+}
+
+function toggleWatchlist(ticker) {
+  const index = watchlist.indexOf(ticker);
+  if (index === -1) watchlist.push(ticker);
+  else watchlist.splice(index, 1);
+  const box = document.getElementById('watchlistBox');
+  box.innerHTML = watchlist.length
+    ? watchlist.map(t => `<div class="list-item"><strong>${t}</strong></div>`).join('')
+    : '<div class="list-item">No stocks on your watchlist yet.</div>';
+  renderMarket();
+}
+
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t === tab));
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('panel-' + tab.dataset.tab).classList.add('active');
+  });
+});
+
+renderMarket();
+</script>
 </body>
 </html>
