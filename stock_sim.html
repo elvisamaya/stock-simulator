@@ -1,0 +1,1011 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Chrimata — Stock Simulator</title>
+<style>
+:root {
+    --bg: #0b1020;
+    --bg2: #0f1630;
+    --panel: rgba(15, 22, 48, 0.82);
+    --panel-2: rgba(20, 29, 61, 0.9);
+    --line: rgba(160, 184, 255, 0.14);
+    --text: #edf2ff;
+    --muted: #91a0c3;
+    --soft: #c3cff0;
+    --green: #5ce0a0;
+    --red: #ff7d7d;
+    --gold: #ffd166;
+    --blue: #78a6ff;
+    --purple: #c49dff;
+    --cyan: #72e7f7;
+    --shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+    --radius: 24px;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background:
+      radial-gradient(circle at top left, rgba(120,166,255,.16), transparent 28%),
+      radial-gradient(circle at 100% 0%, rgba(196,157,255,.14), transparent 24%),
+      linear-gradient(180deg, var(--bg) 0%, #070b16 100%);
+    color: var(--text);
+    min-height: 100vh;
+    letter-spacing: 0.01em;
+  }
+
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background-image:
+      linear-gradient(rgba(255,255,255,.018) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,.018) 1px, transparent 1px);
+    background-size: 44px 44px;
+    mask-image: radial-gradient(circle at center, black 40%, transparent 95%);
+  }
+
+  .app {
+    width: min(1320px, calc(100% - 28px));
+    margin: 18px auto 52px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .glass {
+    background: var(--panel);
+    backdrop-filter: blur(18px);
+    border: 1px solid var(--line);
+    box-shadow: var(--shadow);
+  }
+
+  .topbar {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+
+  .hero {
+    border-radius: 30px;
+    padding: 24px;
+    position: relative;
+    overflow: hidden;
+    min-height: 170px;
+  }
+
+  .hero::after {
+    content: "";
+    position: absolute;
+    width: 320px;
+    height: 320px;
+    right: -110px;
+    top: -120px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(114,231,247,.18), transparent 68%);
+  }
+
+  .eyebrow {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    color: var(--cyan);
+    opacity: 0.9;
+  }
+
+  .hero h1 {
+    margin: 10px 0 8px;
+    font-size: clamp(1.8rem, 4vw, 3rem);
+    line-height: 1;
+    font-weight: 800;
+  }
+
+  .hero p {
+    margin: 0;
+    color: var(--soft);
+    line-height: 1.6;
+    max-width: 58ch;
+  }
+
+  .hero-strip {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 16px;
+  }
+
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid var(--line);
+    background: rgba(255,255,255,.03);
+    color: var(--soft);
+    padding: 8px 12px;
+    border-radius: 999px;
+    font-size: 13px;
+  }
+
+  .stats-wrap {
+    display: grid;
+    gap: 12px;
+  }
+
+  .stat-card {
+    border-radius: 24px;
+    padding: 18px;
+  }
+
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+
+  .stat {
+    border: 1px solid var(--line);
+    background: rgba(255,255,255,.03);
+    border-radius: 18px;
+    padding: 14px;
+  }
+
+  .stat .label {
+    color: var(--muted);
+    font-size: 12px;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .stat .value {
+    font-size: 1.45rem;
+    font-weight: 800;
+  }
+
+  .green { color: var(--green); }
+  .red { color: var(--red); }
+  .blue { color: var(--blue); }
+  .gold { color: var(--gold); }
+
+  .layout {
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: 16px;
+    align-items: start;
+  }
+
+  .main-panel {
+    min-width: 0;
+  }
+
+  .tabs {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 14px;
+  }
+
+  .tab {
+    border: 1px solid var(--line);
+    color: var(--muted);
+    background: rgba(255,255,255,.03);
+    padding: 12px 16px;
+    border-radius: 999px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: 180ms ease;
+  }
+
+  .tab.active,
+  .tab:hover {
+    color: var(--text);
+    border-color: rgba(255,255,255,.18);
+    background: linear-gradient(135deg, rgba(120,166,255,.22), rgba(196,157,255,.16));
+    transform: translateY(-1px);
+  }
+
+  .panel {
+    display: none;
+    border-radius: 28px;
+    padding: 18px;
+  }
+
+  .panel.active { display: block; }
+
+  .section-title {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .section-title h2 {
+    margin: 0;
+    font-size: 1.2rem;
+  }
+
+  .section-title span {
+    color: var(--muted);
+    font-size: 13px;
+  }
+
+  .market-toolbar {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+  }
+
+  .chip {
+    border: 1px solid var(--line);
+    background: rgba(255,255,255,.03);
+    color: var(--soft);
+    border-radius: 999px;
+    padding: 9px 12px;
+    font-size: 13px;
+  }
+
+  .market-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+    gap: 14px;
+  }
+
+  .stock-card {
+    border: 1px solid var(--line);
+    background:
+      linear-gradient(180deg, rgba(255,255,255,.035), rgba(255,255,255,.02)),
+      rgba(12, 18, 39, 0.65);
+    border-radius: 24px;
+    padding: 16px;
+    position: relative;
+    overflow: hidden;
+    transition: 180ms ease;
+  }
+
+  .stock-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(255,255,255,.2);
+  }
+
+  .stock-top {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .logo-mark {
+    width: 52px;
+    height: 52px;
+    border-radius: 18px;
+    display: grid;
+    place-items: center;
+    font-weight: 900;
+    letter-spacing: 0.08em;
+    color: #fff;
+    position: relative;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+
+  .logo-mark::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,.22), transparent 55%);
+  }
+
+  .stock-meta {
+    min-width: 0;
+  }
+
+  .stock-meta .ticker {
+    font-weight: 800;
+    font-size: 1rem;
+  }
+
+  .stock-meta .name,
+  .stock-meta .sector {
+    color: var(--muted);
+    font-size: 12px;
+  }
+
+  .owned-tag,
+  .watch-tag {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    font-size: 11px;
+    border-radius: 999px;
+    padding: 6px 10px;
+    font-weight: 800;
+    border: 1px solid transparent;
+  }
+
+  .owned-tag {
+    background: rgba(92, 224, 160, .14);
+    color: var(--green);
+    border-color: rgba(92, 224, 160, .22);
+  }
+
+  .watch-tag {
+    top: 46px;
+    background: rgba(255, 209, 102, .12);
+    color: var(--gold);
+    border-color: rgba(255, 209, 102, .2);
+  }
+
+  .price-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: end;
+    gap: 12px;
+    margin: 16px 0 10px;
+  }
+
+  .price {
+    font-size: 1.8rem;
+    font-weight: 800;
+  }
+
+  .change {
+    font-size: 0.95rem;
+    font-weight: 700;
+  }
+
+  .stock-desc {
+    font-size: 13px;
+    line-height: 1.55;
+    color: var(--soft);
+    min-height: 40px;
+  }
+
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin: 14px 0;
+  }
+
+  .metric {
+    border-radius: 16px;
+    border: 1px solid var(--line);
+    background: rgba(255,255,255,.03);
+    padding: 10px;
+  }
+
+  .metric .k {
+    font-size: 11px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    margin-bottom: 5px;
+  }
+
+  .metric .v {
+    font-weight: 800;
+    font-size: 0.95rem;
+  }
+
+  .chart-wrap {
+    border-radius: 16px;
+    border: 1px solid var(--line);
+    background: rgba(255,255,255,.02);
+    padding: 8px;
+    margin-bottom: 12px;
+  }
+
+  .stock-mini-chart {
+    display: block;
+    width: 100%;
+    height: 68px;
+  }
+
+  .actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr auto;
+    gap: 8px;
+  }
+
+  button,
+  select,
+  input {
+    font: inherit;
+  }
+
+  .btn {
+    border: 0;
+    cursor: pointer;
+    border-radius: 16px;
+    padding: 11px 14px;
+    font-weight: 800;
+    transition: 150ms ease;
+  }
+
+  .btn:hover { transform: translateY(-1px); }
+
+  .btn-buy {
+    background: linear-gradient(135deg, #6ae6b8, #3fc88c);
+    color: #082519;
+  }
+
+  .btn-sell {
+    background: linear-gradient(135deg, #ff9898, #ff6d6d);
+    color: #300a0a;
+  }
+
+  .btn-ghost {
+    background: rgba(255,255,255,.04);
+    border: 1px solid var(--line);
+    color: var(--soft);
+  }
+
+  .summary-grid,
+  .portfolio-grid,
+  .history-list,
+  .lessons,
+  .pending-grid {
+    display: grid;
+    gap: 12px;
+  }
+
+  .summary-grid {
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    margin-bottom: 14px;
+  }
+
+  .tile,
+  .portfolio-card,
+  .history-item,
+  .lesson-card,
+  .sidebar-card,
+  .pending-card {
+    border: 1px solid var(--line);
+    background: rgba(255,255,255,.03);
+    border-radius: 22px;
+    padding: 14px;
+  }
+
+  .tile .label,
+  .sidebar-label {
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: 11px;
+    margin-bottom: 8px;
+  }
+
+  .tile .big {
+    font-size: 1.35rem;
+    font-weight: 800;
+  }
+
+  .portfolio-grid { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+
+  .portfolio-card .row,
+  .history-item,
+  .pending-card .row,
+  .sidebar-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .portfolio-card .row + .row,
+  .pending-card .row + .row,
+  .sidebar-row + .sidebar-row {
+    margin-top: 10px;
+  }
+
+  .small {
+    color: var(--muted);
+    font-size: 13px;
+  }
+
+  .tiny { font-size: 12px; color: var(--muted); }
+
+  .history-list,
+  .pending-grid,
+  .lessons { grid-template-columns: 1fr; }
+
+  .history-type {
+    padding: 6px 10px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 800;
+  }
+
+  .history-buy { background: rgba(92,224,160,.14); color: var(--green); }
+  .history-sell { background: rgba(255,125,125,.14); color: var(--red); }
+  .history-limit { background: rgba(120,166,255,.14); color: var(--blue); }
+  .history-event { background: rgba(255,209,102,.14); color: var(--gold); }
+
+  .sidebar {
+    display: grid;
+    gap: 12px;
+    position: sticky;
+    top: 16px;
+  }
+
+  .sidebar-card h3,
+  .modal h3,
+  .lesson-card h3 {
+    margin: 0 0 10px;
+    font-size: 1rem;
+  }
+
+  .market-meter {
+    height: 10px;
+    border-radius: 999px;
+    background: rgba(255,255,255,.05);
+    overflow: hidden;
+    margin-top: 10px;
+    border: 1px solid var(--line);
+  }
+
+  .market-meter span {
+    display: block;
+    height: 100%;
+    width: 50%;
+    background: linear-gradient(90deg, var(--red), var(--gold), var(--green));
+  }
+
+  .headline {
+    border-left: 3px solid var(--gold);
+    padding-left: 10px;
+    margin-top: 12px;
+    color: var(--soft);
+    line-height: 1.6;
+    font-size: 14px;
+  }
+
+  .list {
+    display: grid;
+    gap: 8px;
+    margin-top: 10px;
+  }
+
+  .list-item {
+    border: 1px solid var(--line);
+    background: rgba(255,255,255,.025);
+    border-radius: 16px;
+    padding: 10px 12px;
+    font-size: 14px;
+    color: var(--soft);
+  }
+
+  .lesson-card {
+    cursor: pointer;
+    transition: 150ms ease;
+  }
+  .lesson-card:hover { transform: translateY(-2px); }
+
+  .lesson-detail {
+    margin-top: 12px;
+    display: none;
+  }
+  .lesson-detail.open { display: block; }
+
+  .lesson-levels {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 14px;
+  }
+
+  .lesson-level-btn {
+    border: 1px solid var(--line);
+    background: rgba(255,255,255,.03);
+    color: var(--soft);
+    border-radius: 999px;
+    padding: 10px 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: 160ms ease;
+  }
+
+
+  .tutorial-replay-btn {
+    margin-left: auto;
+  }
+
+  .lesson-level-btn.active,
+  .lesson-level-btn:hover {
+    color: var(--text);
+    border-color: rgba(255,255,255,.18);
+    background: linear-gradient(135deg, rgba(120,166,255,.22), rgba(196,157,255,.16));
+  }
+
+  .lesson-section {
+    display: grid;
+    gap: 10px;
+  }
+
+  .lesson-section + .lesson-section {
+    margin-top: 8px;
+  }
+
+  .lesson-section-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding: 2px 2px 0;
+  }
+
+  .lesson-section-head h3 {
+    margin: 0;
+    font-size: 1rem;
+  }
+
+  .lesson-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid var(--line);
+    background: rgba(255,255,255,.03);
+    color: var(--muted);
+    border-radius: 999px;
+    padding: 6px 10px;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .lesson-card .lesson-meta {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+
+  .lesson-card .lesson-tag {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--cyan);
+  }
+
+  .lesson-card .lesson-arrow {
+    color: var(--muted);
+    font-weight: 800;
+  }
+
+  .quiz {
+    display: grid;
+    gap: 8px;
+    margin-top: 14px;
+  }
+
+  .quiz button {
+    text-align: left;
+  }
+
+  .overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(4, 8, 18, 0.76);
+    backdrop-filter: blur(10px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 50;
+    padding: 18px;
+  }
+
+  .overlay.open { display: flex; }
+
+  .modal {
+    width: min(560px, 100%);
+    border-radius: 28px;
+    padding: 22px;
+  }
+
+  .modal-head {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    align-items: start;
+    margin-bottom: 14px;
+  }
+
+  .modal-grid {
+    display: grid;
+    gap: 12px;
+  }
+
+  .field {
+    display: grid;
+    gap: 8px;
+  }
+
+  .field label {
+    color: var(--muted);
+    font-size: 13px;
+  }
+
+  .input,
+  .select,
+  .range-wrap {
+    border: 1px solid var(--line);
+    background: rgba(255,255,255,.04);
+    color: var(--text);
+    border-radius: 16px;
+    padding: 12px 14px;
+  }
+
+  .range-wrap {
+    padding: 14px;
+  }
+
+  input[type="range"] {
+    width: 100%;
+    accent-color: var(--blue);
+  }
+
+  .trade-summary {
+    border-radius: 18px;
+    border: 1px solid var(--line);
+    background: rgba(255,255,255,.03);
+    padding: 14px;
+  }
+
+  .modal-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 6px;
+  }
+
+  .toast {
+    position: fixed;
+    bottom: 18px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 80;
+    border-radius: 999px;
+    padding: 12px 18px;
+    display: none;
+  }
+
+  .empty {
+    color: var(--muted);
+    text-align: center;
+    padding: 28px 14px;
+  }
+
+  .footer-note {
+    color: var(--muted);
+    text-align: center;
+    margin-top: 14px;
+    font-size: 12px;
+  }
+
+  @media (max-width: 1080px) {
+    .topbar,
+    .layout { grid-template-columns: 1fr; }
+    .sidebar { position: static; }
+  }
+
+  @media (max-width: 720px) {
+    .actions,
+    .modal-actions,
+    .stat-grid { grid-template-columns: 1fr; }
+    .metrics { grid-template-columns: 1fr 1fr; }
+    .hero { padding: 20px; }
+    .panel { padding: 14px; }
+  }
+
+
+  .tutorial-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 120;
+    background: rgba(4, 8, 18, 0.78);
+    backdrop-filter: blur(12px);
+    display: none;
+  }
+
+  .tutorial-overlay.open { display: block; }
+
+  .tutorial-spotlight {
+    position: fixed;
+    border-radius: 28px;
+    border: 1px solid rgba(255,255,255,.22);
+    box-shadow: 0 0 0 9999px rgba(4, 8, 18, 0.6), 0 24px 60px rgba(0,0,0,.45);
+    pointer-events: none;
+    transition: 220ms ease;
+  }
+
+  .tutorial-card {
+    position: fixed;
+    z-index: 121;
+    width: min(380px, calc(100vw - 28px));
+    border-radius: 28px;
+    padding: 20px;
+    transition: 220ms ease;
+  }
+
+  .tutorial-progress {
+    display: flex;
+    gap: 8px;
+    margin: 12px 0 14px;
+  }
+
+  .tutorial-progress span {
+    height: 6px;
+    flex: 1;
+    border-radius: 999px;
+    background: rgba(255,255,255,.08);
+    overflow: hidden;
+  }
+
+  .tutorial-progress span.active {
+    background: linear-gradient(90deg, rgba(120,166,255,.8), rgba(196,157,255,.8));
+  }
+
+  .tutorial-note {
+    color: var(--soft);
+    line-height: 1.65;
+    font-size: 14px;
+  }
+
+  .tutorial-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px;
+    margin-top: 18px;
+  }
+
+  .tutorial-kicker {
+    color: var(--cyan);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+  }
+
+  .tutorial-anchor {
+    position: relative;
+    z-index: 2;
+  }
+
+  @media (max-width: 720px) {
+    .tutorial-actions { grid-template-columns: 1fr; }
+    .tutorial-card { width: calc(100vw - 20px); }
+  }
+
+  .label-row {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .info-btn {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 1px solid rgba(255,255,255,.18);
+    background: rgba(255,255,255,.05);
+    color: var(--soft);
+    font-size: 11px;
+    font-weight: 800;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: 180ms ease;
+    padding: 0;
+  }
+
+  .info-btn:hover {
+    color: var(--text);
+    border-color: rgba(255,255,255,.28);
+    background: rgba(120,166,255,.14);
+    transform: translateY(-1px);
+  }
+
+  .info-modal {
+    max-width: 520px;
+  }
+
+  .info-modal h3 {
+    margin: 8px 0 10px;
+    font-size: 1.3rem;
+  }
+
+  .info-modal p {
+    color: var(--soft);
+    line-height: 1.65;
+    margin: 0 0 10px;
+  }
+
+  .info-modal ul {
+    margin: 0;
+    padding-left: 18px;
+    color: var(--soft);
+    line-height: 1.6;
+  }
+</style>
+</head>
+<body>
+  <div class="app">
+    <div class="topbar">
+      <section class="hero glass">
+        <div class="eyebrow">Simulation Studio</div>
+        <h1>Chrimata</h1>
+        <p>A strategy-first stock simulator prototype with a cleaner editorial interface.</p>
+        <div class="hero-strip">
+          <div class="pill">Session <strong>Day 1</strong></div>
+          <div class="pill">Regime <strong>Balanced</strong></div>
+        </div>
+      </section>
+
+      <section class="stats-wrap">
+        <div class="stat-card glass">
+          <div class="stat-grid">
+            <div class="stat">
+              <div class="label">Cash</div>
+              <div class="value green">$25,000.00</div>
+            </div>
+            <div class="stat">
+              <div class="label">Net Worth</div>
+              <div class="value blue">$25,000.00</div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div class="layout">
+      <main class="main-panel">
+        <div class="tabs">
+          <button class="tab active">Market</button>
+          <button class="tab">Portfolio</button>
+        </div>
+
+        <section class="panel glass active">
+          <div class="section-title">
+            <h2>Market board</h2>
+            <span>Early layout pass</span>
+          </div>
+          <div class="market-grid">
+            <article class="stock-card">
+              <div class="stock-top">
+                <div class="logo-mark" style="background: linear-gradient(135deg, #78a6ff, #4254f5);">A</div>
+                <div class="stock-meta">
+                  <div class="ticker">ALBA</div>
+                  <div class="name">Alba Devices</div>
+                  <div class="sector">Consumer Tech</div>
+                </div>
+              </div>
+              <div class="price-row">
+                <div class="price">$132.00</div>
+                <div class="change green">▲ $0.00 · +0.0%</div>
+              </div>
+              <div class="stock-desc">Design-led hardware and personal devices.</div>
+            </article>
+          </div>
+        </section>
+      </main>
+
+      <aside class="sidebar">
+        <section class="sidebar-card glass">
+          <div class="sidebar-label">Coach</div>
+          <div class="small">Start by building the market UI and high-level layout.</div>
+        </section>
+      </aside>
+    </div>
+
+    <div class="footer-note">Reconstructed milestone 1 of 5.</div>
+  </div>
+</body>
+</html>
